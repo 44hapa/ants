@@ -1,6 +1,7 @@
 <?php
 
-require_once 'Ants.php';
+//require_once 'Ants.php';
+require_once 'steamer.php';
 
 class MyBot
 {
