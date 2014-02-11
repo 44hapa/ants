@@ -48,6 +48,8 @@ class Ants
 
     public function issueOrder($aRow, $aCol, $direction)
     {
+//        self::logger("$aRow, $aCol, $direction \n");
+
         printf("o %s %s %s\n", $aRow, $aCol, $direction);
         flush();
     }
@@ -71,6 +73,7 @@ class Ants
         }
         for ($row = 0; $row < $this->rows; $row++) {
             for ($col = 0; $col < $this->cols; $col++) {
+                // Закрашивает все клетки карты землей
                 $this->map[$row][$col] = LAND;
             }
         }
@@ -79,6 +82,9 @@ class Ants
     /** not tested */
     public function update($data)
     {
+//        Ants::logger($this->rows);
+//        Ants::logger($this->cols);
+
         // clear ant and food data
         foreach ($this->myAnts as $ant) {
             list($row, $col) = $ant;
@@ -228,13 +234,14 @@ class Ants
         $i = 0;
 
         while (true) {
+
             $i++;
             $current_line = fgets(STDIN, 1024);
 //            if ($i < 25) {
 //                self::logger($current_line);
 //            }
 
-            self::logger($current_line);
+//            self::logger($current_line);
             $current_line = trim($current_line);
             if ($current_line === 'ready') {
                 // Выполняется единожды, при первой загрузке карты
@@ -242,13 +249,14 @@ class Ants
                 $ants->finishTurn();
                 $map_data = array();
             } elseif ($current_line === 'go') {
-                // Выполняется единожды, при первой загрузке карты
+                // Выполняется каждый раз, после окончания передачи порции параметров текущего шага.
                 $ants->update($map_data);
 
                 $bot->doTurn($ants);
                 $ants->finishTurn();
                 $map_data = array();
             } else {
+                // Массив всех входных данных
                 $map_data [] = $current_line;
             }
         }

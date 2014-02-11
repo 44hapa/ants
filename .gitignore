@@ -6,3 +6,6 @@
 #.gitignore
 *~
 game_logs
+game_logs/*
+bots/.idea
+bots/.idea/*
