@@ -24,11 +24,11 @@ class MyBot
             if ($prior = $this->getPriorityZone($ant)){
                 $dir = $this->createDirection($ant, $prior);
                 $ants->issueOrder($ant[0], $ant[1], $dir);
-                Ants::logger();
-                Ants::logger($prior);
-                Ants::logger($ant);
-                Ants::logger("\n$dir\n");
-                Ants::logger();
+//                Ants::logger();
+//                Ants::logger($prior);
+//                Ants::logger($ant);
+//                Ants::logger("\n$dir\n");
+//                Ants::logger();
 
                 continue;
             }

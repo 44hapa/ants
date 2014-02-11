@@ -1,12 +1,13 @@
 <?php
 
-define('MY_ANT', 0);
-define('ANTS', 1);
-define('DEAD', -1);
-define('LAND', -2);
-define('FOOD', -3);
-define('WATER', -4);
-define('UNSEEN', -5);
+define('HOME', 'HOME');
+define('MY_ANT', 'MY_ANT');
+define('ANTS', 'ANTS');
+define('DEAD', 'DEAD');
+define('LAND', 'LAND');
+define('FOOD', 'FOOD');
+define('WATER', 'WATER');
+define('UNSEEN', 'UNSEEN');
 
 /*
  * w - вода
@@ -21,8 +22,8 @@ class Ants
 {
 
     public $turns = 0;
-    public $rows = 0;
-    public $cols = 0;
+    static public $rows = 0;
+    static public $cols = 0;
     public $loadtime = 0;
     public $turntime = 0;
     public $viewradius2 = 0;
@@ -38,11 +39,49 @@ class Ants
     public $enemyAnts = array();
     public $deadAnts = array();
     public $food = array();
+    public $AIM = array(
+        'n' => array(-1, 0),
+        'e' => array(0, 1),
+        's' => array(1, 0),
+        'w' => array(0, -1));
+    public $RIGHT = array(
+        'n' => 'e',
+        'e' => 's',
+        's' => 'w',
+        'w' => 'n');
+    public $LEFT = array(
+        'n' => 'w',
+        'e' => 'n',
+        's' => 'e',
+        'w' => 's');
+    public $BEHIND = array(
+        'n' => 's',
+        's' => 'n',
+        'e' => 'w',
+        'w' => 'e'
+    );
 
     public function issueOrder($aRow, $aCol, $direction)
     {
         printf("o %s %s %s\n", $aRow, $aCol, $direction);
         flush();
+    }
+
+    static public function createNum($row, $col)
+    {
+        return $row * self::$cols - (self::$cols - $col);
+    }
+
+    static public function createCoordinate($num)
+    {
+        $row = $num / self::$cols;
+        if (is_int($row)){
+            $col = self::$cols;
+            return array($row, $col);
+        }
+        $col = $num - (int) $row * self::$cols;
+        $row = (int) $row + 1;
+        return array($row, $col);
     }
 
     public function finishTurn()
@@ -59,6 +98,12 @@ class Ants
                 $key = $tokens[0];
                 if (property_exists($this, $key)) {
                     $this->{$key} = (int) $tokens[1];
+                }
+                if ($key === 'rows') {
+                    self::$rows = (int) $tokens[1];
+                }
+                if ($key === 'cols') {
+                    self::$cols = (int) $tokens[1];
                 }
             }
         }
@@ -114,40 +159,46 @@ class Ants
                     $row = (int) $tokens[1];
                     $col = (int) $tokens[2];
 
-                    $staticMapKey = $row * $this->cols - ($this->cols - $col);
+                    $staticMapKey = self::createNum($row, $col);
 
+                    self::logger($this->viewradius2 . "\n");
+                    // Нашли муравья
                     if ($tokens[0] == 'a') {
                         $owner = (int) $tokens[3];
                         $this->map[$row][$col] = $owner;
+                        $this->staticMap[$staticMapKey] = LAND;;
                         if ($owner === 0) {
                             $this->myAnts [] = array($row, $col);
-                            $this->staticMap[$staticMapKey] = MY_ANT;
                         } else {
                             $this->enemyAnts [] = array($row, $col);
-                            $this->staticMap[$staticMapKey] = ANTS;
                         }
+                    // Нашли еду
                     } elseif ($tokens[0] == 'f') {
                         $this->map[$row][$col] = FOOD;
-                        $this->staticMap[$staticMapKey] = FOOD;
+                        $this->staticMap[$staticMapKey] = LAND;
                         $this->food [] = array($row, $col);
+                     // Нашли воду
                     } elseif ($tokens[0] == 'w') {
                         $this->map[$row][$col] = WATER;
                         $this->staticMap[$staticMapKey] = WATER;
+                    // Нашли смерть
                     } elseif ($tokens[0] == 'd') {
-                        $this->staticMap[$staticMapKey] = DEAD;
+                        $this->staticMap[$staticMapKey] = LAND;
                         $this->map[$row][$col] = DEAD;
                         $this->deadAnts [] = array($row, $col);
+                    } elseif ($tokens[0] == 'h') {
+                        $this->staticMap[$staticMapKey] = HOME;
                     }
                 }
             }
         }
-        self::logger($this->staticMap);
-        self::logger();
+//        self::logger($this->staticMap);
+//        self::logger();
     }
 
     public function passable($row, $col)
     {
-        return $this->map[$row][$col] > WATER;
+        return $this->map[$row][$col] != WATER && $this->map[$row][$col] != MY_ANTS;
     }
 
     public function unoccupied($row, $col)
