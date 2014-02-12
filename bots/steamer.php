@@ -61,7 +61,7 @@ class Ants
         'w' => 'e'
     );
 
-    public function issueOrder($aRow, $aCol, $direction)
+    static public function issueOrder($aRow, $aCol, $direction)
     {
         printf("o %s %s %s\n", $aRow, $aCol, $direction);
         flush();
@@ -163,7 +163,7 @@ class Ants
 
                     $staticMapKey = self::createNum($row, $col);
 
-                    self::logger($this->viewradius2 . "\n");
+//                    self::logger($this->viewradius2 . "\n");
                     // Нашли муравья
                     if ($tokens[0] == 'a') {
                         $owner = (int) $tokens[3];
@@ -284,7 +284,7 @@ class Ants
     {
         $handle = fopen('./../game_logs/antlog', "a+");
         if (!$params) {
-            fwrite($handle, print_r("\n==============================\n", true));
+            fwrite($handle, print_r("==============================\n", true));
         } else {
             fwrite($handle, print_r($params, true));
         }

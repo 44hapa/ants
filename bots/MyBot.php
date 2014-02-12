@@ -16,8 +16,47 @@ class MyBot
     private $ants;
 
 
+    public function slectPrioritis()
+    {
+        $prioritets = Prioritets::getInstance();
+        $prioritets->clear();
+        $ants = Bots::getInstance()->getList();
+        foreach($ants as $mapKey => $ant){
+            $ant->clearTmp();
+            $ant->fillAndReturnPrioritiPoints();
+            $prioritets->add($ant);
+        }
+//        Ants::logger($prioritets->getList());
+
+        $prioritets->determinateBests();
+//        $ants = Bots::getInstance()->getList();
+//        Ants::logger($ants);
+    }
+
+    public function execute()
+    {
+        $this->slectPrioritis();
+
+        $ants = Bots::getInstance()->getList();
+        foreach ($ants as $ant){
+            $coordinats = Ants::createCoordinate($ant->currentCoord);
+//            if (empty($ant->gol)){
+//                $ant->gol = Ants::createNum(28, 19);
+//            }
+            $golCoord = Ants::createCoordinate($ant->gol);
+            $dir = $this->createDirection($coordinats, $golCoord);
+            Ants::issueOrder($coordinats[0], $coordinats[1], $dir);
+//            break;
+        }
+
+    }
+
     public function doTurn(Ants $ants )
     {
+
+        $this->execute();
+        return;
+
         $this->ants = $ants;
 
 //        Ants::logger($ants->food);
@@ -26,7 +65,7 @@ class MyBot
 
             if ($prior = $this->getPriorityZone($ant)){
                 $dir = $this->createDirection($ant, $prior);
-                $ants->issueOrder($ant[0], $ant[1], $dir);
+                Ants::issueOrder($ant[0], $ant[1], $dir);
 //                Ants::logger();
 //                Ants::logger($prior);
 //                Ants::logger($ant);
@@ -36,7 +75,7 @@ class MyBot
                 continue;
             }
 
-            Ants::logger($this->getPriorityZone($ant));
+//            Ants::logger($this->getPriorityZone($ant));
             list ($aRow, $aCol) = $ant;
             foreach ($this->directions as $direction) {
                 list($dRow, $dCol) = $ants->destination($aRow, $aCol, $direction);

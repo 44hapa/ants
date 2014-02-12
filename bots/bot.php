@@ -5,9 +5,10 @@ class Bot
     public $prevCoord;
     public $currentCoord;
     public $nextCoord;
+    public $gol;
 
     public $stepPrior = 5;
-    
+    public $prioritiPoints = array();
 
     /**
      *Область, в которой ищем обьекты, для приритета
@@ -20,7 +21,7 @@ class Bot
      *  Возвращает массив точек, которые входят в мой приоритет
      * @return array
      */
-    public function getPrioritiZone()
+    private function getPrioritiZone()
     {
         $coordinat = Ants::createCoordinate($this->currentCoord);
 
@@ -42,6 +43,8 @@ class Bot
             }
         }
 
+
+        $this->prioritiZone = $priorityZone;
         return $priorityZone;
     }
 
@@ -49,17 +52,42 @@ class Bot
      * Возвращет список точек с едой, которые ввходят в мой приоритет
      * @return array
      */
-    public function getPrioritiFood()
+    private function getPrioritiFood()
     {
         $prioritiPointFood = array();
         $priorityZone = $this->getPrioritiZone();
 
-        foreach (Ants::$food as $mapKey => $coordinates) {
-            if (isset($priorityZone[$mapKey])) {
-                $prioritiPointFood[$mapKey] = Ants::mapDistance($coordinates, $this->currentCoord);
+//        Ants::logger("QQQ\n");
+//        Ants::logger(Ants::$food);
+//        Ants::logger("WWW\n");
+
+        $foods = Ants::$food;
+        foreach ($foods as $mapKey => $coordinates) {
+//            Ants::logger("$mapKey \n");
+//            Ants::logger($coordinates);
+            if (array_key_exists($mapKey, $priorityZone)) {
+                $prioritiPointFood[$mapKey] = Ants::mapDistance($mapKey, $this->currentCoord);
             }
         }
 
+//        Ants::logger($prioritiPointFood);
+
         return $prioritiPointFood;
+    }
+
+
+    public function fillAndReturnPrioritiPoints()
+    {
+        $this->prioritiPoints = $this->getPrioritiFood();
+//        Ants::logger($this->prioritiPoints);
+        return $this->prioritiPoints;
+    }
+
+    public function clearTmp()
+    {
+        $this->gol = null;
+        $this->nextCoord = null;
+        $this->prioritiZone = array();
+        $this->prioritiPoints = array();
     }
 }
