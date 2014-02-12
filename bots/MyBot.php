@@ -2,6 +2,9 @@
 
 //require_once 'Ants.php';
 require_once 'steamer.php';
+require_once 'bot.php';
+require_once 'bots.php';
+require_once 'prioritets.php';
 
 class MyBot
 {
@@ -65,7 +68,7 @@ class MyBot
                 $x = $Q > 0 ? $Q : $rows + $Q;
                 $y = $W > 0 ? $W : $cols + $W;
                 $priorityZone[$ant[0] . "." . $ant[1]][] = array($x,$y);
-                foreach($this->ants->food as $keyFood => $food){
+                foreach(Ants::$food as $keyFood => $food){
                     if ($food == array($x, $y)){
                         // TODO:    нужно выбрать лучшего муравья!!!
 

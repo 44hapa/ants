@@ -38,7 +38,7 @@ class Ants
     public $myAnts = array();
     public $enemyAnts = array();
     public $deadAnts = array();
-    public $food = array();
+    static public $food = array();
     public $AIM = array(
         'n' => array(-1, 0),
         'e' => array(0, 1),
@@ -122,6 +122,8 @@ class Ants
     /** not tested */
     public function update($data)
     {
+        // Почистим лист ботов
+        Bots::getInstance()->clear();
 //        Ants::logger($this->rows);
 //        Ants::logger($this->cols);
 
@@ -144,11 +146,11 @@ class Ants
         }
         $this->deadAnts = array();
 
-        foreach ($this->food as $ant) {
+        foreach (self::$food as $ant) {
             list($row, $col) = $ant;
             $this->map[$row][$col] = LAND;
         }
-        $this->food = array();
+        self::$food = array();
 
         # update map and create new ant and food lists
         foreach ($data as $line) {
@@ -168,6 +170,8 @@ class Ants
                         $this->map[$row][$col] = $owner;
                         $this->staticMap[$staticMapKey] = LAND;;
                         if ($owner === 0) {
+                            // Засунем бота в лист
+                            Bots::getInstance()->add($staticMapKey);
                             $this->myAnts [] = array($row, $col);
                         } else {
                             $this->enemyAnts [] = array($row, $col);
@@ -176,7 +180,7 @@ class Ants
                     } elseif ($tokens[0] == 'f') {
                         $this->map[$row][$col] = FOOD;
                         $this->staticMap[$staticMapKey] = LAND;
-                        $this->food [] = array($row, $col);
+                        self::$food [$staticMapKey] = array($row, $col);
                      // Нашли воду
                     } elseif ($tokens[0] == 'w') {
                         $this->map[$row][$col] = WATER;
@@ -218,15 +222,21 @@ class Ants
         return array($nRow, $nCol);
     }
 
-    public function distance($row1, $col1, $row2, $col2)
+    static public function distance($row1, $col1, $row2, $col2)
     {
         $dRow = abs($row1 - $row2);
         $dCol = abs($col1 - $col2);
 
-        $dRow = min($dRow, $this->rows - $dRow);
-        $dCol = min($dCol, $this->cols - $dCol);
+        $dRow = min($dRow, self::rows - $dRow);
+        $dCol = min($dCol, self::cols - $dCol);
 
         return sqrt($dRow * $dRow + $dCol * $dCol);
+    }
+
+
+    static public function mapDistance($mapNum1, $mapNum2)
+    {
+        return round(abs($mapNum1 - $mapNum2) / self::$rows);
     }
 
     public function direction($row1, $col1, $row2, $col2)
