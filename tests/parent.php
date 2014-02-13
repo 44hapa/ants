@@ -24,6 +24,7 @@ class Test
                 $this->$method();
             }
         }
+        echo "\n\033[32mGOOD\033[0m\n";
     }
 
     public function clear()

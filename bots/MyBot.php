@@ -18,6 +18,7 @@ class MyBot
 
     public function slectPrioritis()
     {
+
         $prioritets = Prioritets::getInstance();
         $prioritets->clear();
         $ants = Bots::getInstance()->getList();
@@ -29,8 +30,9 @@ class MyBot
 //        Tools::logger($prioritets->getList());
 
         $prioritets->determinateBests();
+
 //        $ants = Bots::getInstance()->getList();
-//        Tools::logger($ants);
+//        Tools::logger($prioritets->getList());
     }
 
     public function execute()
@@ -39,6 +41,8 @@ class MyBot
 
         $ants = Bots::getInstance()->getList();
         foreach ($ants as $ant){
+            $log = !empty($ant->gol) ? print_r(Tools::createCoordinate($ant->gol), true) : 'НЕТУ';
+            Tools::logger("Ant:[" . $ant->currentCoord . "] = $log");
             $coordinats = Tools::createCoordinate($ant->currentCoord);
 //            if (empty($ant->gol)){
 //                $ant->gol = Tools::createNum(28, 19);
@@ -53,9 +57,8 @@ class MyBot
 
     public function doTurn(Steamer $ants )
     {
-
-//        $this->execute();
-//        return;
+        $this->execute();
+        return;
 
         $this->ants = $ants;
 

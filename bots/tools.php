@@ -3,6 +3,7 @@
 class Tools
 {
 
+    static public $turn = 0;
     static public $rows = 0;
     static public $cols = 0;
     static public $food = array();
@@ -31,19 +32,26 @@ class Tools
 
     static public function createNum($row, $col)
     {
-        return $row * self::$cols - (self::$cols - $col);
+        return $row * self::$cols + $col;
+//        return $row * self::$cols - (self::$cols - $col);
+        return ($row + 1) * self::$cols - (self::$cols - $col + 1);
     }
 
     static public function createCoordinate($num)
     {
-        $row = $num / self::$cols;
+        $row = (int)($num/self::$cols);
+        $col = $num - $row * self::$cols;
+        return array($row, $col);
+
+        //=======
+        $row = $num / self::$cols ;
         if (is_int($row)){
             $col = self::$cols;
-            return array($row, $col);
+            return array($row - 1, $col + 1);
         }
         $col = $num - (int) $row * self::$cols;
         $row = (int) $row + 1;
-        return array($row, $col);
+        return array($row - 1, $col + 1);
     }
 
     static public function distance($row1, $col1, $row2, $col2)
@@ -80,6 +88,8 @@ class Tools
     public static function logger($params = null)
     {
         $handle = fopen('./../game_logs/antlog', "a+");
+        fwrite($handle, print_r("\nturn:[" .Tools::$turn ."]", true));
+//        fwrite($handle, "turn:[" .Tools::$turn ."]");
         if (!$params) {
             fwrite($handle, print_r("==============================\n", true));
         } else {

@@ -48,6 +48,7 @@ class Prioritets
 
     public function determinateBests()
     {
+//        Tools::logger($this->getList());
 //        Tools::logger("Line : " . __LINE__ . "\n");
         foreach ($this->list as $mapKeyPrior => $antKeyAndDist){
 //            Tools::logger("Line : " . __LINE__ . "\n");
@@ -67,27 +68,45 @@ class Prioritets
                 $ant->gol = $mapKeyPrior;
                 continue;
             }
+
 //            Tools::logger("Line : " . __LINE__ . "\n");
             // Если ближайших много, определим есть ли у них еще цели.
             // Используем того, у кого целей меньше.
-            foreach ($bestArray as $antKey => $dist){
+//            print_r($bestArray);
+//            print_r(Bots::getInstance()->getList());
+//
+//            die();
+
+            // [координатаЛучшего] => [количество точек приоритета]
+            $bestArrayPointCount = array();
+            foreach ($bestArray as $key => $antKey){
                 $ant = Bots::getInstance()->getByKey($antKey);
-                $bestArray[$antKey] = count($ant->prioritiPoints);
+//                $bestArray[$antKey] = count($ant->prioritiPoints);
+//                print_r(($ant));
+//                print_r(count($ant->prioritiPoints));
+//                print_r(($ant->prioritiPoints));
+//                die('NNNN');
+                $bestArrayPointCount[$antKey] = count($ant->prioritiPoints);
             }
+
+//            print_r($bestArrayPointCount);
+//            die();
 //            Tools::logger("Line : " . __LINE__ . "\n");
-            $best = min($bestArray);
-            $bestArray = array_keys($antKeyAndDist, $best);
+            $best = min($bestArrayPointCount);
+            $bestArray = array_keys($bestArrayPointCount, $best);
             if (count($bestArray) == 1){
                 $ant = Bots::getInstance()->getByKey(key($bestArray));
                 $ant->gol = $mapKeyPrior;
                 continue;
             }
 //            Tools::logger("Line : " . __LINE__ . "\n");
-
+//print_r($bestArray);
+//            die('QQQQ');
             // Если целей одинаковое кол-во.
-            $ant = Bots::getInstance()->getByKey(key($bestArray));
-            $ant->gol = $mapKeyPrior;
-            Tools::logger("Line : " . __LINE__ . "\n");
+            $ant = Bots::getInstance()->getByKey(current($bestArray));
+//            $ant->gol = $mapKeyPrior;
+            $ant->gol = 283;
+//            Tools::logger("Line : " . __LINE__ . "\n");
         }
     }
 
@@ -101,6 +120,7 @@ class Prioritets
     public function add(Bot $ant)
     {
         foreach($ant->prioritiPoints as $mapKye => $distance){
+            // [координата цели] [координата муравья] = рассояние
             $this->list[$mapKye][$ant->currentCoord] = $distance;
         }
         return $mapKye;

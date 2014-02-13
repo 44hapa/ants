@@ -6,6 +6,8 @@ class Bots
 
     private $nextCoordinates = array('next' => 'prev');
 
+    private $golCoordinats = array();
+
     /**
      *
      * @var Bots
@@ -24,14 +26,12 @@ class Bots
     }
 
     
-    public function add($mapCoordinat)
+    public function add(Bot $bot)
     {
-        // Если у бота нет "будущей координаты" - значит он новенький
-        if ($this->isNew($mapCoordinat)) {
-            $bot = new Bot();
-            $bot->currentCoord = $mapCoordinat;
+        $mapCoordinat = $bot->currentCoord;
+        if (!$mapCoordinat){
+            throw new Exception('Не передал координаты');
         }
-
         $this->list[$mapCoordinat] = $bot;
     }
 
@@ -56,10 +56,14 @@ class Bots
     }
 
 
+    public function getByPrevKey($key)
+    {
+        return $this->prevCoordinats[$key];
+    }
 
     public function isNew($key)
     {
-        if (!$this->nextCoordinates[$key]) {
+        if (!isset($this->nextCoordinates[$key])) {
             return true;
         }
         return false;
@@ -68,6 +72,10 @@ class Bots
 
     public function clear()
     {
+//        $this->prevCoordinats = $this->list;
+        foreach ($this->list as $key => $bot){
+            unset($bot);
+        }
         $this->list = array();
     }
 

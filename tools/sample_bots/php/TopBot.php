@@ -65,7 +65,7 @@ class Ant
         }
         
         if ($this->hasTarget() === false){
-            $this->targer = null;
+            $this->target = null;
             return false;
         }
         $core = $this->core;

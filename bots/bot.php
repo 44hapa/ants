@@ -7,7 +7,12 @@ class Bot
     public $nextCoord;
     public $gol;
 
-    public $stepPrior = 5;
+    public $stepPrior = 10;
+
+    /**
+     * [координата цели] = расстояние до цели
+     * @var array
+     */
     public $prioritiPoints = array();
 
     /**
@@ -21,7 +26,7 @@ class Bot
      *  Возвращает массив точек, которые входят в мой приоритет
      * @return array
      */
-    private function getPrioritiZone()
+    public function getPrioritiZone()
     {
         $coordinat = Tools::createCoordinate($this->currentCoord);
 
@@ -38,8 +43,13 @@ class Bot
             for ($moveY = $up; $moveY <= $down; $moveY++){
                 $x = $moveX > 0 ? $moveX : $rows + $moveX;
                 $y = $moveY > 0 ? $moveY : $cols + $moveY;
+
+                $x = $x > Tools::$rows ? $x - Tools::$rows : $x;
+                $y = $y > Tools::$cols ? $y - Tools::$cols : $y;
+
                 $mapCoordinat = Tools::createNum($x, $y);
-                $priorityZone[$mapCoordinat] = null; // Расстояние до этого приоритета
+//                $priorityZone[$mapCoordinat] = null; // Расстояние до этого приоритета
+                $priorityZone[$mapCoordinat] = "$x:$y"; // Расстояние до этого приоритета
             }
         }
 

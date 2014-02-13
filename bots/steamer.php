@@ -68,7 +68,7 @@ class Steamer
         }
 
         $maxCel = Tools::$rows * Tools::$cols;
-        $this->staticMap = array_pad(array(1), $maxCel -1, UNSEEN);
+        $this->staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
 
         for ($row = 0; $row < Tools::$rows; $row++) {
             for ($col = 0; $col < Tools::$cols; $col++) {
@@ -130,7 +130,10 @@ class Steamer
                         $this->staticMap[$staticMapKey] = LAND;;
                         if ($owner === 0) {
                             // Засунем бота в лист
-                            Bots::getInstance()->add($staticMapKey);
+                            $bot = new Bot();
+                            $bot->currentCoord = $staticMapKey;
+                            Bots::getInstance()->add($bot);
+//                            Tools::logger($bot);
                             $this->myAnts [] = array($row, $col);
                         } else {
                             $this->enemyAnts [] = array($row, $col);
@@ -224,6 +227,7 @@ class Steamer
                 $ants->finishTurn();
                 $inputData = array();
             } elseif ($current_line === 'go') {
+                Tools::$turn++;
                 // Выполняется каждый раз, после окончания передачи порции параметров текущего шага.
                 $ants->update($inputData);
 

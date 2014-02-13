@@ -11,7 +11,7 @@ class ToolsTest extends Test
         Tools::$rows = 0;
     }
 
-    public function testCreateCoordinate()
+    public function tQestCreateCoordinate()
     {
         Tools::$cols = 19;
         Tools::$rows = 38;
@@ -26,7 +26,23 @@ class ToolsTest extends Test
         Tools::$rows = 45;
 
         $num = Tools::createNum(15, 17);
-        $this->assertEquals(311, $num);
+//        $this->assertEquals(311, $num);
+
+
+        $num = Tools::createNum(1, 0);
+        $coordinat = Tools::createCoordinate(21);
+
+        print_r($num);
+        echo "\n";
+        print_r($coordinat);
+
+        die();
+
+        $coordinat = Tools::createCoordinate(331);
+        print_r($coordinat);
+        die();
+
+
     }
 
     public function testDistance()
