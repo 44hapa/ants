@@ -18,12 +18,10 @@ define('UNSEEN', 'UNSEEN');
  * 
  */
 
-class Ants
+class Steamer
 {
 
     public $turns = 0;
-    static public $rows = 0;
-    static public $cols = 0;
     public $loadtime = 0;
     public $turntime = 0;
     public $viewradius2 = 0;
@@ -38,50 +36,11 @@ class Ants
     public $myAnts = array();
     public $enemyAnts = array();
     public $deadAnts = array();
-    static public $food = array();
-    public $AIM = array(
-        'n' => array(-1, 0),
-        'e' => array(0, 1),
-        's' => array(1, 0),
-        'w' => array(0, -1));
-    public $RIGHT = array(
-        'n' => 'e',
-        'e' => 's',
-        's' => 'w',
-        'w' => 'n');
-    public $LEFT = array(
-        'n' => 'w',
-        'e' => 'n',
-        's' => 'e',
-        'w' => 's');
-    public $BEHIND = array(
-        'n' => 's',
-        's' => 'n',
-        'e' => 'w',
-        'w' => 'e'
-    );
 
     static public function issueOrder($aRow, $aCol, $direction)
     {
         printf("o %s %s %s\n", $aRow, $aCol, $direction);
         flush();
-    }
-
-    static public function createNum($row, $col)
-    {
-        return $row * self::$cols - (self::$cols - $col);
-    }
-
-    static public function createCoordinate($num)
-    {
-        $row = $num / self::$cols;
-        if (is_int($row)){
-            $col = self::$cols;
-            return array($row, $col);
-        }
-        $col = $num - (int) $row * self::$cols;
-        $row = (int) $row + 1;
-        return array($row, $col);
     }
 
     public function finishTurn()
@@ -100,19 +59,19 @@ class Ants
                     $this->{$key} = (int) $tokens[1];
                 }
                 if ($key === 'rows') {
-                    self::$rows = (int) $tokens[1];
+                    Tools::$rows = (int) $tokens[1];
                 }
                 if ($key === 'cols') {
-                    self::$cols = (int) $tokens[1];
+                    Tools::$cols = (int) $tokens[1];
                 }
             }
         }
 
-        $maxCel = $this->rows * $this->cols;
+        $maxCel = Tools::$rows * Tools::$cols;
         $this->staticMap = array_pad(array(1), $maxCel -1, UNSEEN);
 
-        for ($row = 0; $row < $this->rows; $row++) {
-            for ($col = 0; $col < $this->cols; $col++) {
+        for ($row = 0; $row < Tools::$rows; $row++) {
+            for ($col = 0; $col < Tools::$cols; $col++) {
                 // Закрашивает все клетки карты землей
                 $this->map[$row][$col] = LAND;
             }
@@ -124,8 +83,8 @@ class Ants
     {
         // Почистим лист ботов
         Bots::getInstance()->clear();
-//        Ants::logger($this->rows);
-//        Ants::logger($this->cols);
+//        Ants::logger(Tools::$rows);
+//        Ants::logger(Tools::$cols);
 
         // clear ant and food data
         foreach ($this->myAnts as $ant) {
@@ -146,11 +105,11 @@ class Ants
         }
         $this->deadAnts = array();
 
-        foreach (self::$food as $ant) {
+        foreach (Tools::$food as $ant) {
             list($row, $col) = $ant;
             $this->map[$row][$col] = LAND;
         }
-        self::$food = array();
+        Tools::$food = array();
 
         # update map and create new ant and food lists
         foreach ($data as $line) {
@@ -161,7 +120,7 @@ class Ants
                     $row = (int) $tokens[1];
                     $col = (int) $tokens[2];
 
-                    $staticMapKey = self::createNum($row, $col);
+                    $staticMapKey = Tools::createNum($row, $col);
 
 //                    self::logger($this->viewradius2 . "\n");
                     // Нашли муравья
@@ -180,7 +139,7 @@ class Ants
                     } elseif ($tokens[0] == 'f') {
                         $this->map[$row][$col] = FOOD;
                         $this->staticMap[$staticMapKey] = LAND;
-                        self::$food [$staticMapKey] = array($row, $col);
+                        Tools::$food [$staticMapKey] = array($row, $col);
                      // Нашли воду
                     } elseif ($tokens[0] == 'w') {
                         $this->map[$row][$col] = WATER;
@@ -210,90 +169,50 @@ class Ants
         return in_array($this->map[$row][$col], array(LAND, DEAD, FOOD));
     }
 
-    public function destination($row, $col, $direction)
-    {
-        list($dRow, $dCol) = $this->AIM[$direction];
-        $nRow = ($row + $dRow) % $this->rows;
-        $nCol = ($col + $dCol) % $this->cols;
-        if ($nRow < 0)
-            $nRow += $this->rows;
-        if ($nCol < 0)
-            $nCol += $this->cols;
-        return array($nRow, $nCol);
-    }
-
-    static public function distance($row1, $col1, $row2, $col2)
-    {
-        $dRow = abs($row1 - $row2);
-        $dCol = abs($col1 - $col2);
-
-        $dRow = min($dRow, self::rows - $dRow);
-        $dCol = min($dCol, self::cols - $dCol);
-
-        return sqrt($dRow * $dRow + $dCol * $dCol);
-    }
-
-
-    static public function mapDistance($mapNum1, $mapNum2)
-    {
-        return round(abs($mapNum1 - $mapNum2) / self::$rows);
-    }
-
     public function direction($row1, $col1, $row2, $col2)
     {
         $d = array();
-        $row1 = $row1 % $this->rows;
-        $row2 = $row2 % $this->rows;
-        $col1 = $col1 % $this->cols;
-        $col2 = $col2 % $this->cols;
+        $row1 = $row1 % Tools::$rows;
+        $row2 = $row2 % Tools::$rows;
+        $col1 = $col1 % Tools::$cols;
+        $col2 = $col2 % Tools::$cols;
 
         if ($row1 < $row2) {
-            if ($row2 - $row1 >= $this->rows / 2) {
+            if ($row2 - $row1 >= Tools::$rows / 2) {
                 $d [] = 'n';
             }
-            if ($row2 - $row1 <= $this->rows / 2) {
+            if ($row2 - $row1 <= Tools::$rows / 2) {
                 $d [] = 's';
             }
         } elseif ($row2 < $row1) {
-            if ($row1 - $row2 >= $this->rows / 2) {
+            if ($row1 - $row2 >= Tools::$rows / 2) {
                 $d [] = 's';
             }
-            if ($row1 - $row2 <= $this->rows / 2) {
+            if ($row1 - $row2 <= Tools::$rows / 2) {
                 $d [] = 'n';
             }
         }
         if ($col1 < $col2) {
-            if ($col2 - $col1 >= $this->cols / 2) {
+            if ($col2 - $col1 >= Tools::$cols / 2) {
                 $d [] = 'w';
             }
-            if ($col2 - $col1 <= $this->cols / 2) {
+            if ($col2 - $col1 <= Tools::$cols / 2) {
                 $d [] = 'e';
             }
         } elseif ($col2 < $col1) {
-            if ($col1 - $col2 >= $this->cols / 2) {
+            if ($col1 - $col2 >= Tools::$cols / 2) {
                 $d [] = 'e';
             }
-            if ($col1 - $col2 <= $this->cols / 2) {
+            if ($col1 - $col2 <= Tools::$cols / 2) {
                 $d [] = 'w';
             }
         }
         return $d;
     }
 
-    public static function logger($params = null)
-    {
-        $handle = fopen('./../game_logs/antlog', "a+");
-        if (!$params) {
-            fwrite($handle, print_r("==============================\n", true));
-        } else {
-            fwrite($handle, print_r($params, true));
-        }
-        fclose($handle);
-    }
-
     public static function run($bot)
     {
-        $ants = new Ants();
+        $ants = new Steamer();
         $inputData = array();
 
         while (true) {

@@ -1,17 +1,17 @@
 <?php
 
-//require_once 'Ants.php';
 require_once 'steamer.php';
 require_once 'bot.php';
 require_once 'bots.php';
 require_once 'prioritets.php';
+require_once 'tools.php';
 
 class MyBot
 {
     private $directions = array('n','e','s','w');
 
     /**
-     * @var Ants
+     * @var Steamer
      */
     private $ants;
 
@@ -26,11 +26,11 @@ class MyBot
             $ant->fillAndReturnPrioritiPoints();
             $prioritets->add($ant);
         }
-//        Ants::logger($prioritets->getList());
+//        Tools::logger($prioritets->getList());
 
         $prioritets->determinateBests();
 //        $ants = Bots::getInstance()->getList();
-//        Ants::logger($ants);
+//        Tools::logger($ants);
     }
 
     public function execute()
@@ -39,46 +39,46 @@ class MyBot
 
         $ants = Bots::getInstance()->getList();
         foreach ($ants as $ant){
-            $coordinats = Ants::createCoordinate($ant->currentCoord);
+            $coordinats = Tools::createCoordinate($ant->currentCoord);
 //            if (empty($ant->gol)){
-//                $ant->gol = Ants::createNum(28, 19);
+//                $ant->gol = Tools::createNum(28, 19);
 //            }
-            $golCoord = Ants::createCoordinate($ant->gol);
+            $golCoord = Tools::createCoordinate($ant->gol);
             $dir = $this->createDirection($coordinats, $golCoord);
-            Ants::issueOrder($coordinats[0], $coordinats[1], $dir);
+            Steamer::issueOrder($coordinats[0], $coordinats[1], $dir);
 //            break;
         }
 
     }
 
-    public function doTurn(Ants $ants )
+    public function doTurn(Steamer $ants )
     {
 
-        $this->execute();
-        return;
+//        $this->execute();
+//        return;
 
         $this->ants = $ants;
 
-//        Ants::logger($ants->food);
+//        Tools::logger($ants->food);
         foreach ( $ants->myAnts as $ant ) {
 //            $this->getPriorityZone($ant);
 
             if ($prior = $this->getPriorityZone($ant)){
                 $dir = $this->createDirection($ant, $prior);
-                Ants::issueOrder($ant[0], $ant[1], $dir);
-//                Ants::logger();
-//                Ants::logger($prior);
-//                Ants::logger($ant);
-//                Ants::logger("\n$dir\n");
-//                Ants::logger();
+                Steamer::issueOrder($ant[0], $ant[1], $dir);
+//                Tools::logger();
+//                Tools::logger($prior);
+//                Tools::logger($ant);
+//                Tools::logger("\n$dir\n");
+//                Tools::logger();
 
                 continue;
             }
 
-//            Ants::logger($this->getPriorityZone($ant));
+//            Tools::logger($this->getPriorityZone($ant));
             list ($aRow, $aCol) = $ant;
             foreach ($this->directions as $direction) {
-                list($dRow, $dCol) = $ants->destination($aRow, $aCol, $direction);
+                list($dRow, $dCol) = Tools::destination($aRow, $aCol, $direction);
                 if ($ants->passable($dRow, $dCol)) {
                     $ants->issueOrder($aRow, $aCol, $direction);
                     break;
@@ -101,13 +101,13 @@ class MyBot
 
 
         $priorityZone = array();
-//        Ants::logger("$fromX => $toX, $fromY => $toY \n");
+//        Tools::logger("$fromX => $toX, $fromY => $toY \n");
         for ($Q = $fromX; $Q <= $toX; $Q++) {
             for ($W = $fromY; $W <= $toY; $W++){
                 $x = $Q > 0 ? $Q : $rows + $Q;
                 $y = $W > 0 ? $W : $cols + $W;
                 $priorityZone[$ant[0] . "." . $ant[1]][] = array($x,$y);
-                foreach(Ants::$food as $keyFood => $food){
+                foreach(Tools::$food as $keyFood => $food){
                     if ($food == array($x, $y)){
                         // TODO:    нужно выбрать лучшего муравья!!!
 
@@ -116,8 +116,8 @@ class MyBot
 //                        unset($this->ants->food[$keyFood]);
                         return $result;
                     }
-//                    Ants::logger($food);
-//                    Ants::logger("$x :: $y");
+//                    Tools::logger($food);
+//                    Tools::logger("$x :: $y");
                 }
             }
         }
@@ -144,4 +144,4 @@ class MyBot
 
 }
 
-Ants::run( new MyBot() );
+Steamer::run( new MyBot() );

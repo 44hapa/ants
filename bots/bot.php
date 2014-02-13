@@ -23,22 +23,22 @@ class Bot
      */
     private function getPrioritiZone()
     {
-        $coordinat = Ants::createCoordinate($this->currentCoord);
+        $coordinat = Tools::createCoordinate($this->currentCoord);
 
         $left = $coordinat[0] - $this->stepPrior;
         $right = $coordinat[0] + $this->stepPrior;
         $up = $coordinat[1] - $this->stepPrior;
         $down = $coordinat[1] + $this->stepPrior;
 
-        $rows = Ants::$rows;
-        $cols = Ants::$cols;
+        $rows = Tools::$rows;
+        $cols = Tools::$cols;
 
         $priorityZone = array();
         for ($moveX = $left; $moveX <= $right; $moveX++) {
             for ($moveY = $up; $moveY <= $down; $moveY++){
                 $x = $moveX > 0 ? $moveX : $rows + $moveX;
                 $y = $moveY > 0 ? $moveY : $cols + $moveY;
-                $mapCoordinat = Ants::createNum($x, $y);
+                $mapCoordinat = Tools::createNum($x, $y);
                 $priorityZone[$mapCoordinat] = null; // Расстояние до этого приоритета
             }
         }
@@ -57,20 +57,20 @@ class Bot
         $prioritiPointFood = array();
         $priorityZone = $this->getPrioritiZone();
 
-//        Ants::logger("QQQ\n");
-//        Ants::logger(Ants::$food);
-//        Ants::logger("WWW\n");
+//        Tools::logger("QQQ\n");
+//        Tools::logger(Tools::$food);
+//        Tools::logger("WWW\n");
 
-        $foods = Ants::$food;
+        $foods = Tools::$food;
         foreach ($foods as $mapKey => $coordinates) {
-//            Ants::logger("$mapKey \n");
-//            Ants::logger($coordinates);
+//            Tools::logger("$mapKey \n");
+//            Tools::logger($coordinates);
             if (array_key_exists($mapKey, $priorityZone)) {
-                $prioritiPointFood[$mapKey] = Ants::mapDistance($mapKey, $this->currentCoord);
+                $prioritiPointFood[$mapKey] = Tools::mapDistance($mapKey, $this->currentCoord);
             }
         }
 
-//        Ants::logger($prioritiPointFood);
+//        Tools::logger($prioritiPointFood);
 
         return $prioritiPointFood;
     }
@@ -79,7 +79,7 @@ class Bot
     public function fillAndReturnPrioritiPoints()
     {
         $this->prioritiPoints = $this->getPrioritiFood();
-//        Ants::logger($this->prioritiPoints);
+//        Tools::logger($this->prioritiPoints);
         return $this->prioritiPoints;
     }
 

@@ -48,16 +48,16 @@ class Prioritets
 
     public function determinateBests()
     {
-//        Ants::logger("Line : " . __LINE__ . "\n");
+//        Tools::logger("Line : " . __LINE__ . "\n");
         foreach ($this->list as $mapKeyPrior => $antKeyAndDist){
-//            Ants::logger("Line : " . __LINE__ . "\n");
+//            Tools::logger("Line : " . __LINE__ . "\n");
             // Если притендент только один - присваиваемся и скипуем
             if (count($antKeyAndDist) == 1){
                 $ant = Bots::getInstance()->getByKey(key($antKeyAndDist));
                 $ant->gol = $mapKeyPrior;
                 continue;
             }
-//            Ants::logger("Line : " . __LINE__ . "\n");
+//            Tools::logger("Line : " . __LINE__ . "\n");
             // Ближайший (самая маленькая дистанция)
             $best = min($antKeyAndDist);
             // Массив ближайших
@@ -67,14 +67,14 @@ class Prioritets
                 $ant->gol = $mapKeyPrior;
                 continue;
             }
-//            Ants::logger("Line : " . __LINE__ . "\n");
+//            Tools::logger("Line : " . __LINE__ . "\n");
             // Если ближайших много, определим есть ли у них еще цели.
             // Используем того, у кого целей меньше.
             foreach ($bestArray as $antKey => $dist){
                 $ant = Bots::getInstance()->getByKey($antKey);
                 $bestArray[$antKey] = count($ant->prioritiPoints);
             }
-//            Ants::logger("Line : " . __LINE__ . "\n");
+//            Tools::logger("Line : " . __LINE__ . "\n");
             $best = min($bestArray);
             $bestArray = array_keys($antKeyAndDist, $best);
             if (count($bestArray) == 1){
@@ -82,12 +82,12 @@ class Prioritets
                 $ant->gol = $mapKeyPrior;
                 continue;
             }
-//            Ants::logger("Line : " . __LINE__ . "\n");
+//            Tools::logger("Line : " . __LINE__ . "\n");
 
             // Если целей одинаковое кол-во.
             $ant = Bots::getInstance()->getByKey(key($bestArray));
             $ant->gol = $mapKeyPrior;
-            Ants::logger("Line : " . __LINE__ . "\n");
+            Tools::logger("Line : " . __LINE__ . "\n");
         }
     }
 
