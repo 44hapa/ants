@@ -17,19 +17,20 @@ class BotTest extends Test
     public function testGetPrioritiZone()
     {
         // Зададим размеры карты
-        Tools::$cols = 20;
-        Tools::$rows = 20;
+        Tools::$cols = 20; // количество клеток по горизонтали
+        Tools::$rows = 20; // количество клеток по вертикали
         $step = 2;
         // Координаты для ботов
-        $coordAnt1 = array(20,20);
-        $coordAnt2 = array(1,17);
-        $mapAnt1 = Tools::createNum($coordAnt1[0], $coordAnt1[1]);
-        $mapAnt2 = Tools::createNum($coordAnt2[0], $coordAnt2[1]);
+        $coordAnt1 = array('row' => 19,'col' => 19);
+        $coordAnt2 = array('row' => 1,'col' => 17);
+        $mapAnt1 = Tools::createNum($coordAnt1['row'], $coordAnt1['col']);
+        $mapAnt2 = Tools::createNum($coordAnt2['row'], $coordAnt2['col']);
+
         // Координаты еды
-        $coordFood1 = array(1,15);
-        $coordFood2 = array(2,15);
-        $mapFood1 = Tools::createNum($coordFood1[0], $coordFood1[1]);
-        $mapFood2 = Tools::createNum($coordFood2[0], $coordFood2[1]);
+        $coordFood1 = array('row' => 1,'col' => 15);
+        $coordFood2 = array('row' => 2,'col' => 15);
+        $mapFood1 = Tools::createNum($coordFood1['row'], $coordFood1['col']);
+        $mapFood2 = Tools::createNum($coordFood2['row'], $coordFood2['col']);
 
         $ant1 = new Bot();
         $ant2 = new Bot();
@@ -45,36 +46,37 @@ class BotTest extends Test
         $botList->add($ant1);
         $botList->add($ant2);
 
-        Tools::$food [$mapFood1] = array($coordFood1[0], $coordFood1[1]);
+        Tools::$food [$mapFood1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
 
         // Определим зону приоритета
         $prioritiZone1 = $ant1->getPrioritiZone();
+
         $zone = array (
-            358 => '18:18',
-            359 => '18:19',
-            360 => '18:20',
-            341 => '18:1',
-            342 => '18:2',
-            378 => '19:18',
-            379 => '19:19',
-            380 => '19:20',
-            361 => '19:1',
-            362 => '19:2',
-            398 => '20:18',
-            399 => '20:19',
-            400 => '20:20',
-            381 => '20:1',
-            382 => '20:2',
-            18 => '1:18',
-            19 => '1:19',
-            20 => '1:20',
-            1 => '1:1',
-            2 => '1:2',
-            38 => '2:18',
-            39 => '2:19',
-            40 => '2:20',
-            21 => '2:1',
-            22 => '2:2',
+            357 => '17:17',
+            358 => '17:18',
+            359 => '17:19',
+            340 => '17:0',
+            341 => '17:1',
+            377 => '18:17',
+            378 => '18:18',
+            379 => '18:19',
+            360 => '18:0',
+            361 => '18:1',
+            397 => '19:17',
+            398 => '19:18',
+            399 => '19:19',
+            380 => '19:0',
+            381 => '19:1',
+            17 => '0:17',
+            18 => '0:18',
+            19 => '0:19',
+            0 => '0:0',
+            1 => '0:1',
+            37 => '1:17',
+            38 => '1:18',
+            39 => '1:19',
+            20 => '1:0',
+            21 => '1:1',
         );
         $this->assertEquals($prioritiZone1, $zone);
 //        var_export($prioritiZone1);

@@ -30,7 +30,7 @@ class Steamer
 
 
     // Карта рельефа
-    public $staticMap;
+    static public $staticMap;
 
     public $map;
     public $myAnts = array();
@@ -68,7 +68,7 @@ class Steamer
         }
 
         $maxCel = Tools::$rows * Tools::$cols;
-        $this->staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
+        self::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
 
         for ($row = 0; $row < Tools::$rows; $row++) {
             for ($col = 0; $col < Tools::$cols; $col++) {
@@ -127,11 +127,12 @@ class Steamer
                     if ($tokens[0] == 'a') {
                         $owner = (int) $tokens[3];
                         $this->map[$row][$col] = $owner;
-                        $this->staticMap[$staticMapKey] = LAND;;
+                        self::$staticMap[$staticMapKey] = LAND;;
                         if ($owner === 0) {
                             // Засунем бота в лист
                             $bot = new Bot();
                             $bot->currentCoord = $staticMapKey;
+                            $bot->coordinatColRow = array('row' => $row, 'col' => $col);
                             Bots::getInstance()->add($bot);
 //                            Tools::logger($bot);
                             $this->myAnts [] = array($row, $col);
@@ -141,24 +142,24 @@ class Steamer
                     // Нашли еду
                     } elseif ($tokens[0] == 'f') {
                         $this->map[$row][$col] = FOOD;
-                        $this->staticMap[$staticMapKey] = LAND;
-                        Tools::$food [$staticMapKey] = array($row, $col);
+                        self::$staticMap[$staticMapKey] = LAND;
+                        Tools::$food[$staticMapKey] = array($row, $col);
                      // Нашли воду
                     } elseif ($tokens[0] == 'w') {
                         $this->map[$row][$col] = WATER;
-                        $this->staticMap[$staticMapKey] = WATER;
+                        self::$staticMap[$staticMapKey] = WATER;
                     // Нашли смерть
                     } elseif ($tokens[0] == 'd') {
-                        $this->staticMap[$staticMapKey] = LAND;
+                        self::$staticMap[$staticMapKey] = LAND;
                         $this->map[$row][$col] = DEAD;
                         $this->deadAnts [] = array($row, $col);
                     } elseif ($tokens[0] == 'h') {
-                        $this->staticMap[$staticMapKey] = HOME;
+                        self::$staticMap[$staticMapKey] = HOME;
                     }
                 }
             }
         }
-//        self::logger($this->staticMap);
+//        self::logger(self::$staticMap);
 //        self::logger();
     }
 
@@ -226,7 +227,11 @@ class Steamer
                 $ants->setup($inputData);
                 $ants->finishTurn();
                 $inputData = array();
+//                Tools::logger(Tools::$cols);
+//                Tools::logger(Tools::$rows);
+//                die();
             } elseif ($current_line === 'go') {
+                Tools::logger();
                 Tools::$turn++;
                 // Выполняется каждый раз, после окончания передачи порции параметров текущего шага.
                 $ants->update($inputData);

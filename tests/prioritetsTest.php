@@ -16,6 +16,7 @@ class PrioritetsTest extends Test
 
     public function testDeterminateBests()
     {
+
         // Зададим размеры карты
         Tools::$cols = 30;
         Tools::$rows = 30;
@@ -63,11 +64,13 @@ class PrioritetsTest extends Test
 //        var_dump($prioritets->getList());
 //        echo "\n==============================\n";
 //        echo "\n==============================\n";
-        $ant1->prioritiZone = null;
-        $ant2->prioritiZone = null;
-        var_dump($ant1);
-        var_dump($ant1);
-        die();
+
+
+//        $ant1->prioritiZone = null;
+//        $ant2->prioritiZone = null;
+//        var_dump($ant1);
+//        var_dump($ant2);
+//        die();
 
     }
 

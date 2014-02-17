@@ -46,71 +46,71 @@ class Prioritets
     }
 
 
+
     public function determinateBests()
     {
-//        Tools::logger($this->getList());
-//        Tools::logger("Line : " . __LINE__ . "\n");
+
+        Tools::logger("#######Весь список приоритетов НАЧАЛО######");
+        Tools::logger($this->list);
+        Tools::logger("#######Весь список приоритетов КОНЕЦ######");
+
+        // $mapKeyPrior - координата приоритета
+        // $antKeyAndDist [координата муравья][дистанция]
         foreach ($this->list as $mapKeyPrior => $antKeyAndDist){
-//            Tools::logger("Line : " . __LINE__ . "\n");
-            // Если притендент только один - присваиваемся и скипуем
+//            Tools::logger('Итерируем приоритет');
+            // Если притендент всего однин - смотрим ближе
             if (count($antKeyAndDist) == 1){
                 $ant = Bots::getInstance()->getByKey(key($antKeyAndDist));
-                $ant->gol = $mapKeyPrior;
+                // Если дистанция до текущего приоритета маньше - ставим его
+                Tools::logger("Текущая Достанция до еды : " . Tools::mapDistance($ant->gol, $ant->currentCoord));
+                Tools::logger("Предлагаемая Достанция до еды : " . reset($antKeyAndDist));
+                if (empty($ant->gol) || Tools::mapDistance($ant->gol, $ant->currentCoord) > reset($antKeyAndDist)){
+                    // Присваиваем приоритет этому единственному муравью
+                    Tools::logger("old " . implode(' : ', Tools::createCoordinate($ant->gol)) . " new "  . implode(' : ', Tools::createCoordinate($mapKeyPrior)));
+                    $ant->setGol($mapKeyPrior);
+                }
+//                Tools::logger("DIST " . current($antKeyAndDist));
+//                Tools::logger("mapKeyPrior " . implode(Tools::createCoordinate($mapKeyPrior ), ':'));
+//                Tools::logger(" {1} Ant:[" . implode(Tools::createCoordinate($ant->currentCoord ), ':'). "] = EDA:" . implode(Tools::createCoordinate($ant->gol),':' ));
+                // Т.к. муравей единственный, то в любом случае кончаем итерацию, переходя к следующему приоритету.
                 continue;
             }
-//            Tools::logger("Line : " . __LINE__ . "\n");
-            // Ближайший (самая маленькая дистанция)
-            $best = min($antKeyAndDist);
-            // Массив ближайших
-            $bestArray = array_keys($antKeyAndDist, $best);
-            if (count($bestArray) == 1){
-                $ant = Bots::getInstance()->getByKey(key($antKeyAndDist));
-                $ant->gol = $mapKeyPrior;
-                continue;
-            }
+            // Если притендент не один
 
-//            Tools::logger("Line : " . __LINE__ . "\n");
-            // Если ближайших много, определим есть ли у них еще цели.
-            // Используем того, у кого целей меньше.
-//            print_r($bestArray);
-//            print_r(Bots::getInstance()->getList());
-//
-//            die();
-
-            // [координатаЛучшего] => [количество точек приоритета]
-            $bestArrayPointCount = array();
-            foreach ($bestArray as $key => $antKey){
+            // Вычислим сколько еще приоритетов у муравьев, нацеленых на текущий
+            $antsCountPriority = array();
+            foreach($antKeyAndDist as $antKey => $dist){
+//                Tools::logger('Итерация ботов в приоритете');
                 $ant = Bots::getInstance()->getByKey($antKey);
-//                $bestArray[$antKey] = count($ant->prioritiPoints);
-//                print_r(($ant));
-//                print_r(count($ant->prioritiPoints));
-//                print_r(($ant->prioritiPoints));
-//                die('NNNN');
-                $bestArrayPointCount[$antKey] = count($ant->prioritiPoints);
+                // Количество точек приоритета
+                $countPriorityPoints = count($ant->prioritiPoints);
+                $antsCountPriority[$countPriorityPoints][$antKey] = $dist;
             }
 
-//            print_r($bestArrayPointCount);
-//            die();
-//            Tools::logger("Line : " . __LINE__ . "\n");
-            $best = min($bestArrayPointCount);
-            $bestArray = array_keys($bestArrayPointCount, $best);
-            if (count($bestArray) == 1){
-                $ant = Bots::getInstance()->getByKey(key($bestArray));
-                $ant->gol = $mapKeyPrior;
-                continue;
+            foreach($antsCountPriority as $countPriorityPoints => $antKeyDist){
+//                Tools::logger($antKeyDist);
+                $bestDist = 1000;
+                $bestAnt = null;
+                foreach($antKeyAndDist as $antKey => $dist)
+                {
+                    $ant = Bots::getInstance()->getByKey($antKey);
+//                    if (empty($ant->gol) || Tools::mapDistance($ant->gol, $ant->currentCoord) > $dist){
+                    // Дадим приоритет тому, у кого его еще нет и расстояние до которого ближе
+                    if (empty($ant->gol) && $bestDist > $dist){
+                        $bestDist = $dist;
+                        $bestAnt = $ant;
+
+                    }
+                }
+                // Если в данном наборе приотритетов нашелся тот, у которого нет цели, и расстояние до цели лучшее - присвоим ему цель.
+                if (!empty($bestAnt)){
+                    $bestAnt->setGol($mapKeyPrior);
+//                    Tools::logger(" {2} Ant:[" . implode(Tools::createCoordinate($bestAnt->currentCoord ), ':'). "] = EDA:" . implode(Tools::createCoordinate($bestAnt->gol),':' ));
+                    break;
+                }
             }
-//            Tools::logger("Line : " . __LINE__ . "\n");
-//print_r($bestArray);
-//            die('QQQQ');
-            // Если целей одинаковое кол-во.
-            $ant = Bots::getInstance()->getByKey(current($bestArray));
-//            $ant->gol = $mapKeyPrior;
-            $ant->gol = 283;
-//            Tools::logger("Line : " . __LINE__ . "\n");
         }
     }
-
-
 
     public function getList()
     {
@@ -119,11 +119,17 @@ class Prioritets
 
     public function add(Bot $ant)
     {
+        Tools::logger("В приоритеты добавляем бота " . implode(':', Tools::createCoordinate($ant->currentCoord)));
+        if (empty($ant->prioritiPoints))
+        {
+            Tools::logger("У этого бота нет приоритетных точек " . implode(':', Tools::createCoordinate($ant->currentCoord)));
+        }
+
         foreach($ant->prioritiPoints as $mapKye => $distance){
             // [координата цели] [координата муравья] = рассояние
             $this->list[$mapKye][$ant->currentCoord] = $distance;
         }
-        return $mapKye;
+        return;
     }
 
 

@@ -22,10 +22,13 @@ class MyBot
         $prioritets = Prioritets::getInstance();
         $prioritets->clear();
         $ants = Bots::getInstance()->getList();
+        Tools::logger("Расчет координат для " . count($ants) . "ботов");
         foreach($ants as $mapKey => $ant){
             $ant->clearTmp();
-            $ant->fillAndReturnPrioritiPoints();
-            $prioritets->add($ant);
+            $priorityPoints = $ant->fillAndReturnPrioritiPoints();
+            if (!empty($priorityPoints)){
+                $prioritets->add($ant);
+            }
         }
 //        Tools::logger($prioritets->getList());
 
@@ -39,17 +42,30 @@ class MyBot
     {
         $this->slectPrioritis();
 
+        Bots::getInstance()->clearNext();
         $ants = Bots::getInstance()->getList();
         foreach ($ants as $ant){
-            $log = !empty($ant->gol) ? print_r(Tools::createCoordinate($ant->gol), true) : 'НЕТУ';
-            Tools::logger("Ant:[" . $ant->currentCoord . "] = $log");
+
+            $log = !empty($ant->gol) ? implode(Tools::createCoordinate($ant->gol), ':') : 'НЕТУ';
+//            Tools::logger("Ant:[" . implode(Tools::createCoordinate($ant->currentCoord ), ':'). "] = EDA:$log");
             $coordinats = Tools::createCoordinate($ant->currentCoord);
-//            if (empty($ant->gol)){
+            if (empty($ant->gol)){
+                Tools::logger("У этого нет цели " . implode(':',$ant->currentCoord) . " Ставим ему дефолт");
+//                $ant->gol = $ant->currentCoord;
 //                $ant->gol = Tools::createNum(28, 19);
-//            }
+                $ant->gol = Tools::createNum(10, 67);
+            }
             $golCoord = Tools::createCoordinate($ant->gol);
-            $dir = $this->createDirection($coordinats, $golCoord);
-            Steamer::issueOrder($coordinats[0], $coordinats[1], $dir);
+//            $dir = $this->createDirection($coordinats, $golCoord);
+//            $dir = Tools::createDirection($coordinats, $golCoord);
+            $dirArray = Tools::createDirection($ant);
+            Tools::logger("GO TO ВЫБОР ИЗ : " . implode(':',$dirArray));
+            $dir = Bots::getInstance()->selectMove($ant, $dirArray);
+//            Bots::getInstance()->addNext($ant, $dir);
+            Tools::logger("GO TO ВЫБРАЛ $dir");
+            Tools::logger("GO TO Этот выбрал - >  " . print_r($coordinats,true));
+//            Tools::logger("GO TO " . print_r($dir,true));
+            Steamer::issueOrder($coordinats['row'], $coordinats['col'], $dir);
 //            break;
         }
 
@@ -59,35 +75,6 @@ class MyBot
     {
         $this->execute();
         return;
-
-        $this->ants = $ants;
-
-//        Tools::logger($ants->food);
-        foreach ( $ants->myAnts as $ant ) {
-//            $this->getPriorityZone($ant);
-
-            if ($prior = $this->getPriorityZone($ant)){
-                $dir = $this->createDirection($ant, $prior);
-                Steamer::issueOrder($ant[0], $ant[1], $dir);
-//                Tools::logger();
-//                Tools::logger($prior);
-//                Tools::logger($ant);
-//                Tools::logger("\n$dir\n");
-//                Tools::logger();
-
-                continue;
-            }
-
-//            Tools::logger($this->getPriorityZone($ant));
-            list ($aRow, $aCol) = $ant;
-            foreach ($this->directions as $direction) {
-                list($dRow, $dCol) = Tools::destination($aRow, $aCol, $direction);
-                if ($ants->passable($dRow, $dCol)) {
-                    $ants->issueOrder($aRow, $aCol, $direction);
-                    break;
-                }
-            }
-        }
     }
 
 
