@@ -160,35 +160,24 @@ class BotsTest extends Test
         // Определим точку на карте севернее второго
         $mapWater1 = Tools::createNum(0, 15);
 
-//        die();
-//        echo ("\n____\n");
-//        print_r($mapWater1);
-//        echo ("\n____\n");
-//        die();
         // Поместим ее на карту
         Steamer::$staticMap[$mapWater1] = WATER;
 
         // Еще раз двигаем
         $move3 = $antList->selectMove($ant3, $directionArray3);
-//        echo("\n______\n");
-//        print_r($move3);
-//        echo("\n______\n");
-//        print_r($move4);
-//die();
         $move4 = $antList->selectMove($ant4, $directionArray4);
-        echo("\n______\n");
-        print_r($move3);
-        echo("\n______\n");
-        print_r($move4);
-        echo("\n______\n");
-        die("DIE IN " . __FILE__ ."\n");
+
+        // Должен попробовать на север, обломится и все таки пойти на юг
+
+        // w - запад col
+        // e - восток col
+        // n - север row
+        // s - юг row
 
         // Они разминулись!!!
-        $this->assertEquals('w', $move2);
+        $this->assertEquals('e', $move3);
+        $this->assertEquals('s', $move4);
 
-
-//        print_r($move2);
-//        die();
     }
 }
 // w - запад [col]
@@ -197,4 +186,4 @@ class BotsTest extends Test
 // s - юг [row]
 
 $botsTets = new BotsTest();
-$botsTets->run();
+$botsTets->run($argv);

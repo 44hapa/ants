@@ -88,11 +88,21 @@ class Bots
         Tools::logger("Нет смысла-______________________");
 
         // Осмысленное движение закончено. Переходим к рандому
-//return "XYI";
-        $randomDir = Tools::$directionNum;
-        unset($randomDir[$direction['col']]);
-        unset($randomDir[$direction['row']]);
-        unset($randomDir[0]);
+
+        // Имеет смысл выбирать противоположное направление в последнюю очередь!
+        $randomDir = Tools::getSortRandomDirExcludeBadStep($direction);
+
+/*
+        'n' => -1,
+        'e' => 1,
+        's' => 1,
+        'w' => -1,
+        '0' => 0,
+        // w - запад col
+        // e - восток col
+        // n - север row
+        // s - юг row
+ */
 
         Tools::logger("Были такие направления: " . print_r($direction, true));
         Tools::logger("Стали рандомом направления: " . print_r($randomDir, true));

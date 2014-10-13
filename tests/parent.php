@@ -15,9 +15,14 @@ class Test
     static public function testQer(){
     }
 
-    public function run()
+    public function run($argv)
     {
-        $methods = (get_class_methods($this));
+        if ($argv[1]) {
+            $methods = array($argv[1]);
+        }else{
+            $methods = (get_class_methods($this));
+        }
+
         foreach ($methods as $method) {
             if (false !== strpos($method, 'test')) {
                 $this->clear();

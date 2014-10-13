@@ -6,6 +6,7 @@ class Bot
     public $currentCoord;
     public $nextCoord;
     public $gol;
+    public $golCoordinat;
 
     public $coordinatColRow = array();
 
@@ -121,6 +122,7 @@ class Bot
         if (empty($this->gol))
         {
             $this->gol = $gol;
+            $this->golCoordinat = Tools::createCoordinate($gol);
             return;
         }
         // Вычислим расстояние до новой цели.

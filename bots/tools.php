@@ -238,9 +238,50 @@ class Tools
         return array('col' => $nextCol, 'row' => $nextRow);
     }
 
+
+    public static function getSortRandomDirExcludeBadStep($direction)
+    {
+        // Если пришел массив
+        if (is_array($direction)) {
+            $key = array_search(0, $direction);
+            unset($direction[$key]);
+            $direction = current($direction);
+        }
+
+        if ($direction == 'n') {
+            return array(
+                'e' => 1,
+                'w' => -1,
+                's' => 1, // Противоположное направление в конец
+            );
+        }
+        if ($direction == 's') {
+            return array(
+                'e' => 1,
+                'w' => -1,
+                'n' => -1, // Противоположное направление в конец
+            );
+        }
+        if ($direction == 'e') {
+            return array(
+                's' => 1,
+                'n' => -1,
+                'w' => -1, // Противоположное направление в конец
+            );
+        }
+        if ($direction == 'w') {
+            return array(
+                'n' => -1,
+                's' => -1,
+                'e' => 1, // Противоположное направление в конец
+            );
+        }
+    }
+
     public static function logger($params = null)
     {
-        return;
+//        dump($params);
+//        return;
         $trace = debug_backtrace();
         $location = "[{$trace[0]['line']}][{$trace[1]['function']}][{$trace[1]['class']}]";
 //        print_r(debug_backtrace());
