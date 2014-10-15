@@ -77,4 +77,4 @@ class PrioritetsTest extends Test
 }
 
 $PrioritetsTest = new PrioritetsTest();
-$PrioritetsTest->run();
+$PrioritetsTest->run($argv);

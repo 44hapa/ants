@@ -15,10 +15,10 @@ class Test
     static public function testQer(){
     }
 
-    public function run($argv)
+    public function run($param)
     {
-        if ($argv[1]) {
-            $methods = array($argv[1]);
+        if (isset($param[1])) {
+            $methods = array($param[1]);
         }else{
             $methods = (get_class_methods($this));
         }

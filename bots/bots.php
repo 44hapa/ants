@@ -9,6 +9,9 @@ class Bots
 
     private $golCoordinats = array();
 
+    private $previousCoordinats = array();
+
+
     /**
      *
      * @var Bots
@@ -187,6 +190,45 @@ class Bots
         return false;
     }
 
+
+    public function getPreviousCoordinats()
+    {
+        return $this->previousCoordinats;
+    }
+
+    public function getPreviousCoordinatsByNum($botNumber)
+    {
+        return $this->previousCoordinats[$botNumber];
+    }
+
+    public function addPreviousCoordinat(Bot $bot, $coordinat)
+    {
+        $this->previousCoordinats[$bot->number][] = $coordinat;
+    }
+
+    public function getBotByLastPreviousCoordinatOrNew($coordinat)
+    {
+
+        Tools::logger('START ANT===');
+        Tools::logger(Bots::getInstance()->getPreviousCoordinats());
+        Tools::logger('FINNISHH ANT===');
+
+        if (empty($this->previousCoordinats)) {
+            Tools::logger('EMPRY previousCoordinats');
+            return 1;
+        }
+
+        foreach ($this->previousCoordinats as $botNumber => $botPrevious) {
+            if ($coordinat == end($botPrevious)) {
+                Tools::logger('Старый бот №' . $botNumber );
+                return $botNumber;
+            }else{
+                Tools::logger('coordinat == end($botPrevious) : ' . $coordinat  . ' ! = ' . end($botPrevious) );
+            }
+        }
+        end($this->previousCoordinats);
+        return key($this->previousCoordinats) + 1;
+    }
 
     public function getNextList($asCoordinate = false)
     {

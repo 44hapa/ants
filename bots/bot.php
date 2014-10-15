@@ -2,6 +2,8 @@
 
 class Bot
 {
+    public $number;
+
     public $prevCoord;
     public $currentCoord;
     public $nextCoord;

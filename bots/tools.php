@@ -109,7 +109,8 @@ class Tools
         $bot = $ant->currentCoord;
 
         if (empty($bot) || empty($food)){
-            throw new Exception("Нету бот[$bot] или еда[$food]");
+            Tools::logger("Нету бот[$bot] или еда[$food]");
+//            throw new Exception("Нету бот[$bot] или еда[$food]");
         }
         // w - запад
         // e - восток
@@ -241,11 +242,11 @@ class Tools
 
     public static function getSortRandomDirExcludeBadStep($direction)
     {
-        // Если пришел массив
-        if (is_array($direction)) {
-            $key = array_search(0, $direction);
-            unset($direction[$key]);
-            $direction = current($direction);
+
+        if ($direction['col'] == 0) {
+            $direction = $direction['row'];
+        }else{
+            $direction = $direction['col'];
         }
 
         if ($direction == 'n') {

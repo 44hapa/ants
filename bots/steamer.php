@@ -81,6 +81,9 @@ class Steamer
     /** not tested */
     public function update($data)
     {
+
+        // ТУТ ЧИСТИМСЯ?!
+
         // Почистим лист ботов
         Bots::getInstance()->clear();
 //        Ants::logger(Tools::$rows);
@@ -130,9 +133,15 @@ class Steamer
                         self::$staticMap[$staticMapKey] = LAND;;
                         if ($owner === 0) {
                             // Засунем бота в лист
+
+                            // Тут надо порулить прошлыми координатами и нестоящими..
+                            $botNumber = Bots::getInstance()->getBotByLastPreviousCoordinatOrNew($staticMapKey);
+
                             $bot = new Bot();
                             $bot->currentCoord = $staticMapKey;
                             $bot->coordinatColRow = array('row' => $row, 'col' => $col);
+                            $bot->number = $botNumber;
+
                             Bots::getInstance()->add($bot);
 //                            Tools::logger($bot);
                             $this->myAnts [] = array($row, $col);

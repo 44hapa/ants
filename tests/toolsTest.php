@@ -149,4 +149,4 @@ class ToolsTest extends Test
 }
 
 $ToolsTest = new ToolsTest();
-$ToolsTest->run();
+$ToolsTest->run($argv);

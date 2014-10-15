@@ -11,6 +11,7 @@ function dd(){
 }
 
 function dump($variable){
+return;
     ob_start();
     if (is_array($variable) || is_object($variable)){
         print_r($variable);
@@ -19,7 +20,7 @@ function dump($variable){
         var_dump($variable);
     }
     $content = ob_get_clean();
-    file_put_contents('/home/topas/ant/output.log', $content, FILE_APPEND);
+    file_put_contents('/tmp/ant.log', $content, FILE_APPEND);
 }
 
 class Ant 
@@ -185,7 +186,7 @@ class MyBot
         
         // Перемещаем мурашей
         foreach ($this->getAnts() as $ant){
-            //dump(sprintf("ANT[%d:%d] -> %d:%d", $ant->x, $ant->y, $ant->toX, $ant->toY));
+       :     //dump(sprintf("ANT[%d:%d] -> %d:%d", $ant->x, $ant->y, $ant->toX, $ant->toY));
             unset($this->ants[$ant->x][$ant->y]);
             $this->ants[$ant->toX][$ant->toY] = $ant;
             $ant->x = $ant->toX;

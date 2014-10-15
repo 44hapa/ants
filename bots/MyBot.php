@@ -46,11 +46,15 @@ class MyBot
         $ants = Bots::getInstance()->getList();
         foreach ($ants as $ant){
 
+//            Tools::logger('START ANT===');
+//            Tools::logger(Bots::getInstance()->getPreviousCoordinats());
+//            Tools::logger('FINNISHH ANT===');
+//
             $log = !empty($ant->gol) ? implode(Tools::createCoordinate($ant->gol), ':') : 'НЕТУ';
 //            Tools::logger("Ant:[" . implode(Tools::createCoordinate($ant->currentCoord ), ':'). "] = EDA:$log");
             $coordinats = Tools::createCoordinate($ant->currentCoord);
             if (empty($ant->gol)){
-                Tools::logger("У этого нет цели " . implode(':',$ant->currentCoord) . " Ставим ему дефолт");
+                Tools::logger("У этого нет цели " . $ant->currentCoord .  " Ставим ему дефолт");
 //                $ant->gol = $ant->currentCoord;
 //                $ant->gol = Tools::createNum(28, 19);
                 $ant->gol = Tools::createNum(10, 67);
@@ -65,6 +69,10 @@ class MyBot
             Tools::logger("GO TO ВЫБРАЛ $dir");
             Tools::logger("GO TO Этот выбрал - >  " . print_r($coordinats,true));
 //            Tools::logger("GO TO " . print_r($dir,true));
+
+            // Нужно сохранить текущие координаты бота для истории
+            Bots::getInstance()->addPreviousCoordinat($ant, $ant->currentCoord);
+
             Steamer::issueOrder($coordinats['row'], $coordinats['col'], $dir);
 //            break;
         }
