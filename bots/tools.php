@@ -18,9 +18,14 @@ class Tools
     static public $cols = 0;
     static public $food = array();
 
-    static public $defaultGoal = 0;
+    static public $defaultGoal = null;
 
     static public $directionNum = array(
+//        'n' => 1,
+//        'e' => 1,
+//        's' => -1,
+//        'w' => -1,
+//        '0' => 0,
         'n' => -1,
         'e' => 1,
         's' => 1,
@@ -50,6 +55,12 @@ class Tools
         'w' => 'e'
     );
 
+    /**
+     *
+     * @param int $row
+     * @param int $col
+     * @return int
+     */
     static public function createNum($row, $col)
     {
         return $row * self::$cols + $col;
@@ -185,7 +196,7 @@ class Tools
      * @param $col int координата бота
      * @param $row int координата бота
      * @param $direction массив направлений  - ключи(col:row) - значения(w/e/n/s/0)
-     * @return array массив col:row
+     * @return array массив col:row | string w,n, e, s
      */
     public static function nextStep($col, $row, $direction)
     {
@@ -196,6 +207,16 @@ class Tools
 
         if ($col >= Tools::$cols || $row >= Tools::$rows || $col < 0 || $row < 0){
             throw new Exception("Попытка шагать ботом, который покинул пределы карты");
+        }
+
+        if (!is_array($direction)) {
+            if ($direction == 'w' || $direction == 'e') {
+                $direction = array('col' => $direction, 'row' => 0);
+            }elseif($direction == 'n' || $direction == 's'){
+                $direction = array('col' => 0, 'row' => $direction);
+            }else{
+                $direction = array('col' => 0, 'row' => 0);
+            }
         }
 
         $dirNumX = Tools::$directionNum[$direction['col']];
@@ -220,27 +241,34 @@ class Tools
         // Если вылезли справа
         if ($nextCol >= Tools::$cols){
             $nextCol = 0;
+            Tools::logger('Если вылезли справа вернем ' .$nextCol);
         }
         // Если вылезли слева
         if($nextCol < 0){
             $nextCol = Tools::$cols - 1;
+            Tools::logger('Если вылезли слева вернем ' .$nextCol);
         }
 
         // Если вылезли снизу
         if ($nextRow >= Tools::$rows){
             $nextRow = 0;
+            Tools::logger('Если вылезли снизу вернем ' .$nextRow. ' $nextRow >= Tools::$rows' . "$nextRow >= " . Tools::$rows);
         }
-        // Если вылезли слева
+        // Если вылезли сверху
         if($nextRow < 0){
             $nextRow = Tools::$rows -1;
+            Tools::logger('Если вылезли сверху вернем ' .$nextRow. ' $nextRow < 0 .  ' . "$nextRow < 0 ");
         }
 
+        if ($nextRow >= 83 || $nextCol >= 83) {
+            Tools::logger("nextRow = $nextRow || nextCol = $nextCol");
+        }
 
         return array('col' => $nextCol, 'row' => $nextRow);
     }
 
 
-    public static function getSortRandomDirExcludeBadStep($direction)
+    public static function getSortRandomDirExcludeBadStep($direction, $prevDirection)
     {
 
         if ($direction['col'] == 0) {
@@ -249,34 +277,57 @@ class Tools
             $direction = $direction['col'];
         }
 
-        if ($direction == 'n') {
-            return array(
-                'e' => 1,
-                'w' => -1,
-                's' => 1, // Противоположное направление в конец
-            );
+        if ($prevDirection['col'] == 0) {
+            $prevDirection = $prevDirection['row'];
+        }else{
+            $prevDirection = $prevDirection['col'];
         }
-        if ($direction == 's') {
-            return array(
-                'e' => 1,
-                'w' => -1,
-                'n' => -1, // Противоположное направление в конец
-            );
+
+        switch ($direction) {
+            case 'n':
+                $result = array(
+                    'e' => 1,
+                    'w' => -1,
+                    's' => 1, // Противоположное направление в конец
+                );
+                break;
+            case 's':
+                $result = array(
+                    'e' => 1,
+                    'w' => -1,
+                    'n' => -1, // Противоположное направление в конец
+                );
+            case 'e':
+                $result = array(
+                    's' => 1,
+                    'n' => -1,
+                    'w' => -1, // Противоположное направление в конец
+                );
+            case 'w':
+                $result = array(
+                    'n' => -1,
+                    's' => -1,
+                    'e' => 1, // Противоположное направление в конец
+                );
+
+            default:
+                break;
         }
-        if ($direction == 'e') {
-            return array(
-                's' => 1,
-                'n' => -1,
-                'w' => -1, // Противоположное направление в конец
-            );
+        // w - запад col
+        // e - восток col
+        // n - север row
+        // s - юг row
+
+//        Tools::logger('Пытаюсь удалить  $prevDirection:' . $prevDirection . ' && $result: ' .  print_r($result, true));
+        if ($prevDirection && isset($result[$prevDirection])) {
+            $k = $result[$prevDirection];
+//            Tools::logger('Удалил предыдущее направление : ' . $prevDirection);
+            unset($result[$prevDirection]);
+            $result[$prevDirection] = $k;
+//            Tools::logger('Попытка удалась $prevDirection:' . $prevDirection . ' && $result: ' .  print_r($result, true));
         }
-        if ($direction == 'w') {
-            return array(
-                'n' => -1,
-                's' => -1,
-                'e' => 1, // Противоположное направление в конец
-            );
-        }
+
+        return $result;
     }
 
     public static function logger($params = null)

@@ -31,6 +31,8 @@ class Steamer
 
     // Карта рельефа
     static public $staticMap;
+    static public $home = array();
+    static public $enemyHome = array();
 
     public $map;
     public $myAnts = array();
@@ -51,6 +53,7 @@ class Steamer
 
     public function setup($data)
     {
+         Tools::logger($data);
         foreach ($data as $line) {
             if (strlen($line) > 0) {
                 $tokens = explode(' ', $line);
@@ -60,10 +63,16 @@ class Steamer
                 }
                 if ($key === 'rows') {
                     Tools::$rows = (int) $tokens[1];
+                    Tools::logger('Пришло rows : ' . Tools::$rows );
+                    Tools::logger('$tokens : ' . print_r($tokens, TRUE) );
                 }
                 if ($key === 'cols') {
                     Tools::$cols = (int) $tokens[1];
+                    Tools::logger('Пришло cols : ' . Tools::$cols );
+                    Tools::logger('$tokens : ' . print_r($tokens, TRUE) );
                 }
+
+//                Tools::logger('$key = ' . $key);
             }
         }
 
@@ -130,8 +139,16 @@ class Steamer
                     if ($tokens[0] == 'a') {
                         $owner = (int) $tokens[3];
                         $this->map[$row][$col] = $owner;
-                        self::$staticMap[$staticMapKey] = LAND;;
+                        self::$staticMap[$staticMapKey] = LAND;
                         if ($owner === 0) {
+                            // Если я зашел в чужой дом - он стал моим :)
+                            if (in_array($staticMapKey, self::$enemyHome)) {
+                                self::$home[] = $staticMapKey;
+                                $unsetKey = array_search($staticMapKey, self::$enemyHome);
+                                unset(self::$enemyHome[$unsetKey]);
+                                 Tools::$defaultGoal = null;
+                            }
+
                             // Засунем бота в лист
 
                             // Тут надо порулить прошлыми координатами и нестоящими..
@@ -146,6 +163,7 @@ class Steamer
 //                            Tools::logger($bot);
                             $this->myAnts [] = array($row, $col);
                         } else {
+                            Tools::logger('Враг $row, $col ' . "$row, $col");
                             $this->enemyAnts [] = array($row, $col);
                         }
                     // Нашли еду
@@ -159,11 +177,25 @@ class Steamer
                         self::$staticMap[$staticMapKey] = WATER;
                     // Нашли смерть
                     } elseif ($tokens[0] == 'd') {
+                        // Удалим мертвеца
+                        $botDeadNum = Bots::getInstance()->getBotByLastPreviousCoordinatOrNew($staticMapKey);
+                        Bots::getInstance()->removeBotFromPreviousCoordinats($botDeadNum);
+                        Tools::logger("В координатах[$row, $col :: $staticMapKey] умер бот. Его номер [$botDeadNum] . В живых осталось ботов " . count(Bots::getInstance()->getPreviousCoordinats()));
                         self::$staticMap[$staticMapKey] = LAND;
                         $this->map[$row][$col] = DEAD;
                         $this->deadAnts [] = array($row, $col);
                     } elseif ($tokens[0] == 'h') {
+                        // В первой итерации определим наши дома
                         self::$staticMap[$staticMapKey] = HOME;
+                        if (Tools::$turn == 0) {
+                            self::$home[] = $staticMapKey;
+                        }
+                        if (!in_array($staticMapKey, self::$home)) {
+                            self::$enemyHome[] = $staticMapKey;
+                            // цель по умолчанию
+                            Tools::$defaultGoal = $staticMapKey;
+                        }
+                        
                     }
                 }
             }

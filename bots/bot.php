@@ -83,30 +83,19 @@ class Bot
      */
     private function getPrioritiFood()
     {
-//        Tools::logger("\n..................[Start]....................\n");
         $prioritiPointFood = array();
         $priorityZone = $this->getPrioritiZone();
-
-//        Tools::logger($priorityZone);
-//        Tools::logger(Tools::$food);
 
         $foods = Tools::$food;
         foreach ($foods as $mapKey => $coordinates) {
             if (array_key_exists($mapKey, $priorityZone)) {
-//                Tools::logger("Еда попала в приоритет!!");
                 $prioritiPointFood[$mapKey] = Tools::mapDistance($mapKey, $this->currentCoord);
-//                Tools::logger($priorityZone[$mapKey] . "=" . $prioritiPointFood[$mapKey]);
             }
             else{
-                Tools::logger("Еда НЕ!!! попала в приоритет!!");
-                Tools::logger($mapKey);
+//                Tools::logger("Еда НЕ!!! попала в приоритет!!");
+//                Tools::logger($mapKey);
             }
         }
-
-//        Tools::logger($prioritiPointFood);
-//        die();
-//        Tools::logger("\n...................[End]...................\n");
-//die();
         return $prioritiPointFood;
     }
 
@@ -114,6 +103,18 @@ class Bot
     public function fillAndReturnPrioritiPoints()
     {
         $this->prioritiPoints = $this->getPrioritiFood();
+        // Если нет приоритотов и цели по умолчанию - укажем ближайшую не открытую точку
+        if (empty($this->prioritiPoints) && empty(Tools::$defaultGoal)) {
+            $mapSlice = array_slice(Steamer::$staticMap, $this->currentCoord - 45, 30);
+            foreach ($mapSlice as $key=>$value){
+                if ($value == UNSEEN) {
+                    $this->prioritiPoints[$key] = Tools::mapDistance($key, $this->currentCoord);
+                    $gol = Tools::createCoordinate($key);
+                    Tools::logger('В итоге идем в темноту в col:'.$gol['col'] . ' row:'.$gol['row']  . print_r($this->prioritiPoints, true));
+                    return $this->prioritiPoints;
+                }
+            }
+        }
         return $this->prioritiPoints;
     }
 
