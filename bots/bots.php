@@ -123,6 +123,7 @@ class Bots
         // Имеет смысл выбирать противоположное направление в ПРЕДпоследнюю очередь!
         // В последнюю очередь - предыдущие координаты
         $prevDirection = Tools::createDirection($ant, $lastCoordinat);
+        // Загоняем сюда плохое направление и предывущее. Надеемся получить список хороших направлений.
         $randomDir = Tools::getSortRandomDirExcludeBadStep($direction, $prevDirection);
 
 /*
@@ -260,10 +261,10 @@ class Bots
 
         foreach ($this->previousCoordinats as $botNumber => $botPrevious) {
             if ($coordinat == end($botPrevious)) {
-                Tools::logger('Старый бот №' . $botNumber );
+//                Tools::logger('Старый бот №' . $botNumber );
                 return $botNumber;
             }else{
-                Tools::logger('coordinat == end($botPrevious) : ' . $coordinat  . ' ! = ' . end($botPrevious) );
+//                Tools::logger('coordinat == end($botPrevious) : ' . $coordinat  . ' ! = ' . end($botPrevious) );
             }
         }
         end($this->previousCoordinats);

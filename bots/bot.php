@@ -100,12 +100,14 @@ class Bot
     }
 
 
+    // TODO: ну очень мутная херня. Переработать!!!
     public function fillAndReturnPrioritiPoints()
     {
         $this->prioritiPoints = $this->getPrioritiFood();
         // Если нет приоритотов и цели по умолчанию - укажем ближайшую не открытую точку
         if (empty($this->prioritiPoints) && empty(Tools::$defaultGoal)) {
-            $mapSlice = array_slice(Steamer::$staticMap, $this->currentCoord - 45, 30);
+            Tools::logger('Ни еды ни дома.');
+            $mapSlice = array_slice(Steamer::$staticMap, $this->currentCoord);
             foreach ($mapSlice as $key=>$value){
                 if ($value == UNSEEN) {
                     $this->prioritiPoints[$key] = Tools::mapDistance($key, $this->currentCoord);

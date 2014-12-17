@@ -271,13 +271,13 @@ class Tools
     public static function getSortRandomDirExcludeBadStep($direction, $prevDirection)
     {
 
-        if ($direction['col'] == 0) {
+        if ($direction['col'] === 0) {
             $direction = $direction['row'];
         }else{
             $direction = $direction['col'];
         }
 
-        if ($prevDirection['col'] == 0) {
+        if ($prevDirection['col'] === 0) {
             $prevDirection = $prevDirection['row'];
         }else{
             $prevDirection = $prevDirection['col'];
