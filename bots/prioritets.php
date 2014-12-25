@@ -63,7 +63,7 @@ class Prioritets
                 $ant = Bots::getInstance()->getByKey(key($antKeyAndDist));
                 // Если дистанция до текущего приоритета маньше - ставим его
                 Tools::logger("Текущая Достанция до еды : " . Tools::mapDistance($ant->gol, $ant->currentCoord));
-                Tools::logger("Предлагаемая Достанция до еды : " . reset($antKeyAndDist));
+                Tools::logger("Предлагаемая Достанция до еды : " . print_r(reset($antKeyAndDist), true));
                 if (empty($ant->gol) || Tools::mapDistance($ant->gol, $ant->currentCoord) > reset($antKeyAndDist)){
                     // Присваиваем приоритет этому единственному муравью
                     Tools::logger("old " . implode(' : ', Tools::createCoordinate($ant->gol)) . " new "  . implode(' : ', Tools::createCoordinate($mapKeyPrior)));

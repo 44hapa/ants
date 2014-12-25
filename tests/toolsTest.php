@@ -1,5 +1,7 @@
 <?php
 
+require_once '../bots/steamer.php';
+require_once '../bots/bots.php';
 require_once '../bots/tools.php';
 require_once '../bots/bot.php';
 require_once 'parent.php';
@@ -145,6 +147,46 @@ class ToolsTest extends Test
 
         $next = Tools::nextStep($bot4['col'], $bot4['row'], array('col' => 'e', 'row' => 'n'));
         $this->assertEquals(array('col' => 0, 'row' => 9), $next);
+    }
+
+    public function testSonar()
+    {
+
+
+        //Настроим карту
+        // Зададим размеры карты
+        Tools::$cols = 50; // количество клеток по горизонтали
+        Tools::$rows = 50; // количество клеток по вертикали
+
+        // Координаты для ботов
+        $coordAnt1 = array('row' => 19,'col' => 19);
+        $coordAnt2 = array('row' => 1,'col' => 1);
+        $mapAnt1 = Tools::createNum($coordAnt1['row'], $coordAnt1['col']);
+        $mapAnt2 = Tools::createNum($coordAnt2['row'], $coordAnt2['col']);
+
+        // Зальем карту
+        $maxCel = Tools::$rows * Tools::$cols;
+        Steamer::$staticMap = array_pad(array(0), $maxCel, UNSEEN);
+        $ant1 = new Bot();
+        $ant2 = new Bot();
+        // Поместим на карту
+        $ant1->currentCoord = $mapAnt1;
+        $ant1->coordinatColRow = $coordAnt1;
+        // Поместим на карту
+        $ant2->currentCoord = $mapAnt2;
+        $ant2->coordinatColRow = $coordAnt2;
+        // Засунем в БОТлист
+        $botList = Bots::getInstance();
+        $botList->add($ant1);
+        $botList->add($ant2);
+
+//        dd($ant1->coordinatColRow);
+
+        $qwe = Tools::sonar($ant1->coordinatColRow, $ant2->coordinatColRow);
+
+        dd(array_intersect_key($qwe['ant'], $qwe['gol']));
+        dd($qwe);
+
     }
 }
 

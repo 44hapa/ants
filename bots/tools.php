@@ -20,6 +20,8 @@ class Tools
 
     static public $defaultGoal = null;
 
+    static public $direction = array('n' ,'e' ,'s' ,'w');
+
     static public $directionNum = array(
 //        'n' => 1,
 //        'e' => 1,
@@ -85,6 +87,12 @@ class Tools
         return $x + $y;
     }
 
+    /**
+     *
+     * @param int $mapNum1
+     * @param int $mapNum2
+     * @return array [row1, col1, row2, col2]
+     */
     static public function mapDistance($mapNum1, $mapNum2)
     {
         $coordinat1 = self::createCoordinate($mapNum1);
@@ -353,4 +361,80 @@ class Tools
         fclose($handle);
     }
 
+    public static function getNeighbor($pointNum)
+    {
+        $pointColRow = Tools::createCoordinate($pointNum);
+        $neighbors = [];
+
+        foreach (Tools::$direction as $dir) {
+            $nextColRow = Tools::nextStep($pointColRow['col'], $pointColRow['row'], $dir);
+            $nextPoint = Tools::createNum($nextColRow['row'], $nextColRow['col']);
+
+            if (Steamer::$staticMap[$nextPoint] !== WATER) {
+                $neighbors[] = $nextPoint;
+            }
+        }
+
+        return $neighbors;
+    }
+
+
+    public static function sonar($antColRow, $golColRow)
+    {
+        $i = 0;
+
+        $antNum = Tools::createNum($antColRow['row'], $antColRow['col']);
+        $golNum = Tools::createNum($golColRow['row'], $golColRow['col']);
+
+        // Полные карты всех координат
+        $antMap = [
+            $antNum => null,
+        ];
+        $golMap = [
+            $golNum => null,
+        ];
+
+        // Координаты по шагам
+        $antMapStep = [];
+        $golMapStep = [];
+
+        while (!array_intersect_key($antMap, $golMap) && $i < 300) {
+            $neighborsAnt = []; // Соседи мураша (на данном этапе обхода)
+            $neighborsGol = []; // Соседи еды (на данном этапе обхода)
+
+            // Ищем координаты, у которых еще нет соседей
+            foreach ($antMap as $key => $value) {
+                if ($value === null) {
+                    $neighbors = Tools::getNeighbor($key);
+                    $neighborsAnt = $neighborsAnt + $neighbors;
+                    $antMap[$key] = Tools::getNeighbor($key);
+                }
+            }
+            foreach ($golMap as $key => $value) {
+                if ($value === null) {
+                    $neighbors = Tools::getNeighbor($key);
+                    $neighborsGol = $neighborsGol + $neighbors;
+                    $golMap[$key] = Tools::getNeighbor($key);
+                }
+            }
+
+            // Добавим новых соседей в общие массивы
+            foreach ($neighborsAnt as $key => $value) {
+                if (!isset($antMap[$value])) {
+                    $antMap[$value] = null;
+                }
+            }
+
+            foreach ($neighborsGol as $key => $value) {
+                if (!isset($golMap[$value])) {
+                    $golMap[$value] = null;
+                }
+            }
+dd($neighborsGol);
+        }
+
+
+        dd($antMapStep);
+        return ['ant' => $antMap, 'gol' => $golMap];
+    }
 }

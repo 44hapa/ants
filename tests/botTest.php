@@ -9,6 +9,7 @@
 require_once '../bots/tools.php';
 require_once '../bots/bot.php';
 require_once '../bots/bots.php';
+require_once '../bots/steamer.php';
 require_once 'parent.php';
 
 class BotTest extends Test
@@ -81,6 +82,43 @@ class BotTest extends Test
         $this->assertEquals($prioritiZone1, $zone);
 //        var_export($prioritiZone1);
 //        die();
+
+    }
+
+
+    public function testFillAndReturnPrioritiPoints()
+    {
+        //Настроим карту
+        // Зададим размеры карты
+        Tools::$cols = 50; // количество клеток по горизонтали
+        Tools::$rows = 50; // количество клеток по вертикали
+        $step = 2;
+        // Координаты для ботов
+        $coordAnt1 = array('row' => 19,'col' => 19);
+        $mapAnt1 = Tools::createNum($coordAnt1['row'], $coordAnt1['col']);
+
+        // Координаты дома
+        $home = array('row' => 1,'col' => 15);
+        $mapHome = Tools::createNum($home['row'], $home['col']);
+        // Зальем карту
+        $maxCel = Tools::$rows * Tools::$cols;
+        Steamer::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
+        //Поместим дом на карту
+        Steamer::$home = array($mapHome);
+        $ant1 = new Bot();
+
+
+        // Поместим на карту
+        $ant1->currentCoord = $mapAnt1;
+        // Зададим расстояние приоритета
+        $ant1->stepPrior = $step;
+        // Засунем в БОТлист
+        $botList = Bots::getInstance();
+        $botList->add($ant1);
+
+        dd($ant1->fillAndReturnPrioritiPoints());
+
+//        Tools::$food [$mapFoыod1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
 
     }
 }
