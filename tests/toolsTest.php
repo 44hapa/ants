@@ -152,15 +152,14 @@ class ToolsTest extends Test
     public function testSonar()
     {
 
-
         //Настроим карту
         // Зададим размеры карты
-        Tools::$cols = 50; // количество клеток по горизонтали
-        Tools::$rows = 50; // количество клеток по вертикали
+        Tools::$cols = 30; // количество клеток по горизонтали
+        Tools::$rows = 30; // количество клеток по вертикали
 
         // Координаты для ботов
         $coordAnt1 = array('row' => 19,'col' => 19);
-        $coordAnt2 = array('row' => 1,'col' => 1);
+        $coordAnt2 = array('row' => 5,'col' => 10);
         $mapAnt1 = Tools::createNum($coordAnt1['row'], $coordAnt1['col']);
         $mapAnt2 = Tools::createNum($coordAnt2['row'], $coordAnt2['col']);
 
@@ -180,13 +179,12 @@ class ToolsTest extends Test
         $botList->add($ant1);
         $botList->add($ant2);
 
-//        dd($ant1->coordinatColRow);
+        $antRoad1 = Tools::sonar($ant1->coordinatColRow, $ant2->coordinatColRow);
 
-        $qwe = Tools::sonar($ant1->coordinatColRow, $ant2->coordinatColRow);
-
-        dd(array_intersect_key($qwe['ant'], $qwe['gol']));
-        dd($qwe);
-
+        dd($antRoad1);
+        dump($antRoad1);
+        dump($mapAnt1);
+        dd(Tools::getNeighbor($mapAnt1));
     }
 }
 

@@ -68,6 +68,11 @@ class Tools
         return $row * self::$cols + $col;
     }
 
+    /**
+     *
+     * @param int $num
+     * @return type array ['row' => 123, 'col' => 567]
+     */
     static public function createCoordinate($num)
     {
         $row = (int)($num/self::$cols);
@@ -141,6 +146,17 @@ class Tools
 
         $botCoordinat = Tools::createCoordinate($bot);
         $foodCoordinat = Tools::createCoordinate($food);
+
+// ================
+// Пробуем вклинитяс сюда с сонаром
+$sonar = Tools::sonar($botCoordinat, $foodCoordinat);
+
+if (is_array($sonar)) {
+    $countSonar = count($sonar);
+    $foodCoordinat = key($sonar[$countSonar]);
+}
+
+// ================
 
         // Движение по иксу
         // Выясним, в какую сторону ближе
@@ -398,7 +414,7 @@ class Tools
         $antMapStep = [];
         $golMapStep = [];
 
-        while (!array_intersect_key($antMap, $golMap) && $i < 300) {
+        while (!array_intersect_key($antMap, $golMap) && $i++ < 50) {
             $neighborsAnt = []; // Соседи мураша (на данном этапе обхода)
             $neighborsGol = []; // Соседи еды (на данном этапе обхода)
 
@@ -406,15 +422,22 @@ class Tools
             foreach ($antMap as $key => $value) {
                 if ($value === null) {
                     $neighbors = Tools::getNeighbor($key);
-                    $neighborsAnt = $neighborsAnt + $neighbors;
-                    $antMap[$key] = Tools::getNeighbor($key);
+                    $antMap[$key] = $neighbors;
+                    $neighborsAnt = array_merge($neighborsAnt, $neighbors);
                 }
             }
+
+            // Если цель находится на соседней клетке
+            // по горизонтали/вертикали - тогда можем сразу вернуть результ
+            if ($i == 1 && array_search($golNum, $neighborsAnt)) {
+                return [$i => [$golNum => null]];
+            }
+
             foreach ($golMap as $key => $value) {
                 if ($value === null) {
                     $neighbors = Tools::getNeighbor($key);
-                    $neighborsGol = $neighborsGol + $neighbors;
-                    $golMap[$key] = Tools::getNeighbor($key);
+                    $golMap[$key] = $neighbors;
+                    $neighborsGol = array_merge($neighborsGol, $neighbors);
                 }
             }
 
@@ -430,11 +453,47 @@ class Tools
                     $golMap[$value] = null;
                 }
             }
-dd($neighborsGol);
+            $antMapStep[$i] = array_flip($neighborsAnt);
+            $golMapStep[$i] = array_flip($neighborsGol);
         }
 
 
-        dd($antMapStep);
-        return ['ant' => $antMap, 'gol' => $golMap];
+        // Соседние клетки по диагонали (вертикаль и горизонталь уже отрезали выше)
+        if ($i == 1) {
+            $intersectPonts = array_intersect_key($antMap, $golMap);
+            return [$i => [key($intersectPonts) => null]];
+        }
+//        dump($golMap);
+//        dump($antMap);
+//dd(array_intersect_key($antMap, $golMap));
+
+      $intersectPonts = array_intersect_key($antMap, $golMap);
+      $intersectPontNeighbors = reset($intersectPonts); // Соседи точки пересечения, если она проставились
+      $intersectPont1 = key($intersectPonts); // Первая попавшаяся точка пересечения
+      $neighbors = array_flip(Tools::getNeighbor($intersectPont1)); // Соседи первой попавшейся точки пересечения
+
+//dump($antNum);
+//dump($golNum);
+//dd();
+//dd($intersectPont1);
+      // Если для точки пересечения уже построены соседи, значит она не из последнего шага обсчета.
+      if (is_array($intersectPontNeighbors) && !array_intersect_key($antMapStep[$i], $neighbors)) {
+          unset($antMapStep[$i]);
+          $i--;
+      }
+//dd($antMapStep);
+      // Теперь удалим все лишник точки, оставляя только соседей пересечения
+      for ($i; $i > 0; $i--) {
+          $intersect = array_intersect_key($antMapStep[$i], $neighbors);
+//          dd($intersect);
+//          dump($neighbors);
+//          dd($antMapStep);
+          $antMapStep[$i] = $intersect;
+          $key = key($intersect);
+          $neighbors = array_flip(Tools::getNeighbor($key));
+      }
+
+      // По сути, нам и не нужно полного пути. Вполне достаточно пути до пересечения
+    return $antMapStep;
     }
 }
