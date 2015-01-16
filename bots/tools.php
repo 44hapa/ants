@@ -151,9 +151,8 @@ class Tools
 // Пробуем вклинитяс сюда с сонаром
 $sonar = Tools::sonar($botCoordinat, $foodCoordinat);
 
-if (is_array($sonar)) {
-    $countSonar = count($sonar);
-    $foodCoordinat = key($sonar[$countSonar]);
+if ($sonar) {
+    $foodCoordinat = $sonar;
 }
 
 // ================
@@ -395,12 +394,10 @@ if (is_array($sonar)) {
     }
 
 
-    public static function sonar($antColRow, $golColRow)
+    // Находим точку пересечения доступных областей бота и цели
+    static public function getIntersectPoints($antNum, $golNum)
     {
         $i = 0;
-
-        $antNum = Tools::createNum($antColRow['row'], $antColRow['col']);
-        $golNum = Tools::createNum($golColRow['row'], $golColRow['col']);
 
         // Полные карты всех координат
         $antMap = [
@@ -430,7 +427,8 @@ if (is_array($sonar)) {
             // Если цель находится на соседней клетке
             // по горизонтали/вертикали - тогда можем сразу вернуть результ
             if ($i == 1 && array_search($golNum, $neighborsAnt)) {
-                return [$i => [$golNum => null]];
+//                dd($neighborsAnt);
+                return $golNum;
             }
 
             foreach ($golMap as $key => $value) {
@@ -459,41 +457,35 @@ if (is_array($sonar)) {
 
 
         // Соседние клетки по диагонали (вертикаль и горизонталь уже отрезали выше)
+        // Возврящаем первую попавшуюся
         if ($i == 1) {
             $intersectPonts = array_intersect_key($antMap, $golMap);
-            return [$i => [key($intersectPonts) => null]];
+            return key($intersectPonts);
         }
-//        dump($golMap);
-//        dump($antMap);
-//dd(array_intersect_key($antMap, $golMap));
 
       $intersectPonts = array_intersect_key($antMap, $golMap);
-      $intersectPontNeighbors = reset($intersectPonts); // Соседи точки пересечения, если она проставились
-      $intersectPont1 = key($intersectPonts); // Первая попавшаяся точка пересечения
-      $neighbors = array_flip(Tools::getNeighbor($intersectPont1)); // Соседи первой попавшейся точки пересечения
 
-//dump($antNum);
-//dump($golNum);
-//dd();
-//dd($intersectPont1);
-      // Если для точки пересечения уже построены соседи, значит она не из последнего шага обсчета.
-      if (is_array($intersectPontNeighbors) && !array_intersect_key($antMapStep[$i], $neighbors)) {
-          unset($antMapStep[$i]);
-          $i--;
-      }
-//dd($antMapStep);
-      // Теперь удалим все лишник точки, оставляя только соседей пересечения
-      for ($i; $i > 0; $i--) {
-          $intersect = array_intersect_key($antMapStep[$i], $neighbors);
-//          dd($intersect);
-//          dump($neighbors);
-//          dd($antMapStep);
-          $antMapStep[$i] = $intersect;
-          $key = key($intersect);
-          $neighbors = array_flip(Tools::getNeighbor($key));
+      if (!$intersectPonts) {
+          return null;
       }
 
-      // По сути, нам и не нужно полного пути. Вполне достаточно пути до пересечения
-    return $antMapStep;
+      return array_keys($intersectPonts);
+    }
+
+    public static function sonar($antMap, $golMap)
+    {
+        // Пока возвращается массив - ищем куда идти.
+        // Как только нашли - возврящаем.
+        $i = 0;
+        do {
+            $i++;
+            $intersectPonts = Tools::getIntersectPoints($antMap, $golMap);
+//            dump($intersectPonts);
+            if (is_array($intersectPonts)) {
+                $golMap = reset($intersectPonts);
+            }
+        } while (is_array($intersectPonts) && $i < 50);
+
+        return $intersectPonts;
     }
 }

@@ -40,6 +40,7 @@ class MyBot
 
     public function execute()
     {
+//        Tools::$defaultGoal = Tools::createNum(14, 19);
         $this->slectPrioritis();
 
         Bots::getInstance()->clearNext();

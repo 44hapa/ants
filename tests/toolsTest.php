@@ -154,12 +154,12 @@ class ToolsTest extends Test
 
         //Настроим карту
         // Зададим размеры карты
-        Tools::$cols = 30; // количество клеток по горизонтали
-        Tools::$rows = 30; // количество клеток по вертикали
+        Tools::$cols = 6; // количество клеток по горизонтали
+        Tools::$rows = 6; // количество клеток по вертикали
 
         // Координаты для ботов
-        $coordAnt1 = array('row' => 19,'col' => 19);
-        $coordAnt2 = array('row' => 5,'col' => 10);
+        $coordAnt1 = array('row' => 2,'col' => 2);
+        $coordAnt2 = array('row' => 2,'col' => 4);
         $mapAnt1 = Tools::createNum($coordAnt1['row'], $coordAnt1['col']);
         $mapAnt2 = Tools::createNum($coordAnt2['row'], $coordAnt2['col']);
 
@@ -179,12 +179,21 @@ class ToolsTest extends Test
         $botList->add($ant1);
         $botList->add($ant2);
 
-        $antRoad1 = Tools::sonar($ant1->coordinatColRow, $ant2->coordinatColRow);
+        // Бот побежал по прямой
+        $intersectPoints = Tools::sonar($ant1->currentCoord, $ant2->currentCoord);
+        $this->assertEquals(15, $intersectPoints);
 
-        dd($antRoad1);
-        dump($antRoad1);
-        dump($mapAnt1);
-        dd(Tools::getNeighbor($mapAnt1));
+        // Поставим на пути воду
+        Steamer::$staticMap[15] = WATER;
+        $intersectPoints = Tools::sonar($ant1->currentCoord, $ant2->currentCoord);
+        // Обходит
+        $this->assertEquals(8, $intersectPoints);
+
+        // Поставим на пути воду (но схитрим и не на самом пути, а чуть дальше)
+        Steamer::$staticMap[9] = WATER;
+        $intersectPoints = Tools::sonar($ant1->currentCoord, $ant2->currentCoord);
+        // Прям чудо! - обруливает!
+        $this->assertEquals(20, $intersectPoints);
     }
 }
 

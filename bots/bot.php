@@ -112,7 +112,7 @@ class Bot
                 if ($value == UNSEEN) {
                     $this->prioritiPoints[$key] = Tools::mapDistance($key, $this->currentCoord);
                     $gol = Tools::createCoordinate($key);
-                    Tools::logger('В итоге идем в темноту в col:'.$gol['col'] . ' row:'.$gol['row']  . print_r($this->prioritiPoints, true));
+                    Tools::logger('В итоге идем в темноту из col['.$this->coordinatColRow['col'].'] row['.$this->coordinatColRow['row'].'] В col:' .$gol['col'] . 'row:'.$gol['row']  . print_r($this->prioritiPoints, true));
                     return $this->prioritiPoints;
                 }
             }

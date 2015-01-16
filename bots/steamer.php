@@ -77,7 +77,8 @@ class Steamer
         }
 
         $maxCel = Tools::$rows * Tools::$cols;
-        self::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
+//        self::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
+        self::$staticMap = array_pad(array(0), $maxCel, UNSEEN);
 
         for ($row = 0; $row < Tools::$rows; $row++) {
             for ($col = 0; $col < Tools::$cols; $col++) {
