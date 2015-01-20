@@ -10,14 +10,14 @@ class ToolsTest extends Test
 
     public function clear()
     {
-        Tools::$cols = 0;
-        Tools::$rows = 0;
+        Steamer::$cols = 0;
+        Steamer::$rows = 0;
     }
 
     public function testCreateCoordinate()
     {
-        Tools::$cols = 19;
-        Tools::$rows = 38;
+        Steamer::$cols = 19;
+        Steamer::$rows = 38;
 
         $coordinat = Tools::createCoordinate(20);
         $this->assertEquals($coordinat, array('row' => 1, 'col' => 1));
@@ -31,8 +31,8 @@ class ToolsTest extends Test
 
     public function testCreateNum()
     {
-        Tools::$cols = 21;
-        Tools::$rows = 45;
+        Steamer::$cols = 21;
+        Steamer::$rows = 45;
 
         $num = Tools::createNum(15, 17);
         $this->assertEquals(332, $num);
@@ -43,8 +43,8 @@ class ToolsTest extends Test
 
     public function testDistance()
     {
-        Tools::$cols = 51;
-        Tools::$rows = 32;
+        Steamer::$cols = 51;
+        Steamer::$rows = 32;
         $a = array('col' => 1,'row' => 1);
         $b = array('col' => 30,'row' => 3);
 
@@ -75,8 +75,8 @@ class ToolsTest extends Test
         // n - север (row)
         // s - юг (row)
 
-        Tools::$cols = 10;
-        Tools::$rows = 10;
+        Steamer::$cols = 10;
+        Steamer::$rows = 10;
         $bot = array('row' => 1, 'col' => 1);
 
         // Еда расположена нормально
@@ -113,8 +113,8 @@ class ToolsTest extends Test
         // n - север row
         // s - юг row
 
-        Tools::$cols = 11;
-        Tools::$rows = 11;
+        Steamer::$cols = 11;
+        Steamer::$rows = 11;
         $bot = array('col' => 0, 'row' => 0);
 
         $next = Tools::nextStep($bot['col'], $bot['row'], array('col' => 0, 'row' => 's'));
@@ -154,8 +154,8 @@ class ToolsTest extends Test
 
         //Настроим карту
         // Зададим размеры карты
-        Tools::$cols = 6; // количество клеток по горизонтали
-        Tools::$rows = 6; // количество клеток по вертикали
+        Steamer::$cols = 6; // количество клеток по горизонтали
+        Steamer::$rows = 6; // количество клеток по вертикали
 
         // Координаты для ботов
         $coordAnt1 = array('row' => 2,'col' => 2);
@@ -164,7 +164,7 @@ class ToolsTest extends Test
         $mapAnt2 = Tools::createNum($coordAnt2['row'], $coordAnt2['col']);
 
         // Зальем карту
-        $maxCel = Tools::$rows * Tools::$cols;
+        $maxCel = Steamer::$rows * Steamer::$cols;
         Steamer::$staticMap = array_pad(array(0), $maxCel, UNSEEN);
         $ant1 = new Bot();
         $ant2 = new Bot();

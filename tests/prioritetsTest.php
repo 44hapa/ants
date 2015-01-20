@@ -18,8 +18,8 @@ class PrioritetsTest extends Test
     {
 
         // Зададим размеры карты
-        Tools::$cols = 30;
-        Tools::$rows = 30;
+        Steamer::$cols = 30;
+        Steamer::$rows = 30;
         // Координаты для ботов
         $coordAnt1 = array(1,13);
         $coordAnt2 = array(1,17);

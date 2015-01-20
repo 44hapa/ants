@@ -5,17 +5,6 @@ class Tools
 
     static public $turn = 0;
 
-    /**
-     * количество клеток по вертикали
-     * @var int
-     */
-    static public $rows = 0;
-
-    /**
-     * количество клеток по горизонтали
-     * @var int
-     */
-    static public $cols = 0;
     static public $food = array();
 
     static public $defaultGoal = null;
@@ -65,7 +54,7 @@ class Tools
      */
     static public function createNum($row, $col)
     {
-        return $row * self::$cols + $col;
+        return $row * Steamer::$cols + $col;
     }
 
     /**
@@ -75,8 +64,8 @@ class Tools
      */
     static public function createCoordinate($num)
     {
-        $row = (int)($num/self::$cols);
-        $col = $num - $row * self::$cols;
+        $row = (int)($num/Steamer::$cols);
+        $col = $num - $row * Steamer::$cols;
         return array('row' => $row, 'col' => $col);
     }
 
@@ -84,10 +73,10 @@ class Tools
     {
 
         $x1 = abs($row1 - $row2);
-        $x = min(Tools::$rows - $x1, $x1);
+        $x = min(Steamer::$rows - $x1, $x1);
 
         $y1 = abs($col1 - $col2);
-        $y = min(Tools::$cols - $y1, $y1);
+        $y = min(Steamer::$cols - $y1, $y1);
 
         return $x + $y;
     }
@@ -109,12 +98,12 @@ class Tools
     static public function destination($row, $col, $direction)
     {
         list($dRow, $dCol) = self::$AIM[$direction];
-        $nRow = ($row + $dRow) % Tools::$rows;
-        $nCol = ($col + $dCol) % self::$cols;
+        $nRow = ($row + $dRow) % Steamer::$rows;
+        $nCol = ($col + $dCol) % Steamer::$cols;
         if ($nRow < 0)
-            $nRow += Tools::$rows;
+            $nRow += Steamer::$rows;
         if ($nCol < 0)
-            $nCol += self::$cols;
+            $nCol += Steamer::$cols;
         return array($nRow, $nCol);
     }
 
@@ -163,10 +152,10 @@ if ($sonar) {
         // Прямое расстояние
         $dirRow1 = abs($botCoordinat['row'] - $foodCoordinat['row']);
         // Зеркальное расстояние
-        $dirRow2 = Tools::$rows - max($botCoordinat['row'], $foodCoordinat['row']) + min($botCoordinat['row'], $foodCoordinat['row']);
+        $dirRow2 = Steamer::$rows - max($botCoordinat['row'], $foodCoordinat['row']) + min($botCoordinat['row'], $foodCoordinat['row']);
 
         $dirCol1 = abs($botCoordinat['col'] - $foodCoordinat['col']);
-        $dirCol2 = Tools::$cols - max($botCoordinat['col'], $foodCoordinat['col']) + min($botCoordinat['col'], $foodCoordinat['col']);
+        $dirCol2 = Steamer::$cols - max($botCoordinat['col'], $foodCoordinat['col']) + min($botCoordinat['col'], $foodCoordinat['col']);
 
         // Нормальное движение
         if ($dirRow1 < $dirRow2){
@@ -228,7 +217,7 @@ if ($sonar) {
         // n - север row
         // s - юг row
 
-        if ($col >= Tools::$cols || $row >= Tools::$rows || $col < 0 || $row < 0){
+        if ($col >= Steamer::$cols || $row >= Steamer::$rows || $col < 0 || $row < 0){
             throw new Exception("Попытка шагать ботом, который покинул пределы карты");
         }
 
@@ -262,24 +251,24 @@ if ($sonar) {
 //        die();
 
         // Если вылезли справа
-        if ($nextCol >= Tools::$cols){
+        if ($nextCol >= Steamer::$cols){
             $nextCol = 0;
             Tools::logger('Если вылезли справа вернем ' .$nextCol);
         }
         // Если вылезли слева
         if($nextCol < 0){
-            $nextCol = Tools::$cols - 1;
+            $nextCol = Steamer::$cols - 1;
             Tools::logger('Если вылезли слева вернем ' .$nextCol);
         }
 
         // Если вылезли снизу
-        if ($nextRow >= Tools::$rows){
+        if ($nextRow >= Steamer::$rows){
             $nextRow = 0;
-            Tools::logger('Если вылезли снизу вернем ' .$nextRow. ' $nextRow >= Tools::$rows' . "$nextRow >= " . Tools::$rows);
+            Tools::logger('Если вылезли снизу вернем ' .$nextRow. ' $nextRow >= Steamer::$rows' . "$nextRow >= " . Steamer::$rows);
         }
         // Если вылезли сверху
         if($nextRow < 0){
-            $nextRow = Tools::$rows -1;
+            $nextRow = Steamer::$rows -1;
             Tools::logger('Если вылезли сверху вернем ' .$nextRow. ' $nextRow < 0 .  ' . "$nextRow < 0 ");
         }
 

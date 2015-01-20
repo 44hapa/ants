@@ -55,14 +55,14 @@ class Bot
         for ($moveX = $left; $moveX <= $right; $moveX++) {
             for ($moveY = $up; $moveY <= $down; $moveY++){
                 // Если выехали за правый край
-                if ($moveX >= Tools::$cols){
-                    $x = $moveX - Tools::$cols;
+                if ($moveX >= Steamer::$cols){
+                    $x = $moveX - Steamer::$cols;
                 }else{
                     $x = $moveX;
                 }
 
-                if ($moveY >= Tools::$rows){
-                    $y = $moveY - Tools::$rows;
+                if ($moveY >= Steamer::$rows){
+                    $y = $moveY - Steamer::$rows;
                 }else{
                     $y = $moveY;
                 }

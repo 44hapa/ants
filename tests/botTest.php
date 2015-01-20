@@ -18,8 +18,8 @@ class BotTest extends Test
     public function testGetPrioritiZone()
     {
         // Зададим размеры карты
-        Tools::$cols = 20; // количество клеток по горизонтали
-        Tools::$rows = 20; // количество клеток по вертикали
+        Steamer::$cols = 20; // количество клеток по горизонтали
+        Steamer::$rows = 20; // количество клеток по вертикали
         $step = 2;
         // Координаты для ботов
         $coordAnt1 = array('row' => 19,'col' => 19);
@@ -90,8 +90,8 @@ class BotTest extends Test
     {
         //Настроим карту
         // Зададим размеры карты
-        Tools::$cols = 50; // количество клеток по горизонтали
-        Tools::$rows = 50; // количество клеток по вертикали
+        Steamer::$cols = 50; // количество клеток по горизонтали
+        Steamer::$rows = 50; // количество клеток по вертикали
         $step = 2;
         // Координаты для ботов
         $coordAnt1 = array('row' => 19,'col' => 19);
@@ -101,7 +101,7 @@ class BotTest extends Test
         $home = array('row' => 1,'col' => 15);
         $mapHome = Tools::createNum($home['row'], $home['col']);
         // Зальем карту
-        $maxCel = Tools::$rows * Tools::$cols;
+        $maxCel = Steamer::$rows * Steamer::$cols;
         Steamer::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
         //Поместим дом на карту
         Steamer::$home = array($mapHome);

@@ -21,23 +21,30 @@ define('UNSEEN', 'UNSEEN');
 class Steamer
 {
 
-    public $turns = 0;
-    public $loadtime = 0;
-    public $turntime = 0;
-    public $viewradius2 = 0;
-    public $attackradius2 = 0;
-    public $spawnradius2 = 0;
+    static public $turns = 0;
+    static public $loadtime = 0;
+    static public $turntime = 0;
+    static public $rows = 0;
+    static public $cols = 0;
+    static public $viewradius2 = 0;
+    static public $attackradius2 = 0;
+    static public $spawnradius2 = 0;
 
 
     // Карта рельефа
     static public $staticMap;
-    static public $home = array();
-    static public $enemyHome = array();
+    static public $map;
 
-    public $map;
-    public $myAnts = array();
-    public $enemyAnts = array();
-    public $deadAnts = array();
+    static public $water = array();
+    static public $food = array();
+    static public $myAnts = array();
+    static public $enemyAnts = array();
+    static public $land = array();
+    static public $deadAnts = array();
+    static public $enemyHome = array();
+    static public $home = array();
+
+    //вода, еда, мои боты, враги боты, земля, трупы, враги дома, мои дома - 8 массивов
 
     static public function issueOrder($aRow, $aCol, $direction)
     {
@@ -59,69 +66,44 @@ class Steamer
                 $tokens = explode(' ', $line);
                 $key = $tokens[0];
                 if (property_exists($this, $key)) {
-                    $this->{$key} = (int) $tokens[1];
+                    Tools::logger('property_exists: ' .$key);
+                    self::${$key} = (int) $tokens[1];
                 }
-                if ($key === 'rows') {
-                    Tools::$rows = (int) $tokens[1];
-                    Tools::logger('Пришло rows : ' . Tools::$rows );
-                    Tools::logger('$tokens : ' . print_r($tokens, TRUE) );
-                }
-                if ($key === 'cols') {
-                    Tools::$cols = (int) $tokens[1];
-                    Tools::logger('Пришло cols : ' . Tools::$cols );
-                    Tools::logger('$tokens : ' . print_r($tokens, TRUE) );
-                }
-
-//                Tools::logger('$key = ' . $key);
             }
         }
-
-        $maxCel = Tools::$rows * Tools::$cols;
-//        self::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
+        
+        $maxCel = Steamer::$rows * Steamer::$cols;
         self::$staticMap = array_pad(array(0), $maxCel, UNSEEN);
-
-        for ($row = 0; $row < Tools::$rows; $row++) {
-            for ($col = 0; $col < Tools::$cols; $col++) {
-                // Закрашивает все клетки карты землей
-                $this->map[$row][$col] = LAND;
-            }
-        }
     }
 
-    /** not tested */
     public function update($data)
     {
 
-        // ТУТ ЧИСТИМСЯ?!
+        Tools::logger('DATA>>>>');
+
+        Tools::logger($data);
+
+        Tools::logger('DATA<<<<<');
+/*
+ * Что бы хотелось
+ * Иметь отдельные массивы для ВСЕГО (вода, еда, мои боты, враги боты, земля, трупы, враги дома, мои дома - 8 массивов)
+ * В статичную мапу запихать ВСЕ (т.е. смержить) + невидимые клетки
+ * На каждой итерации чистить все, кроме воды, и домов (3 массива)
+ * 
+ */
 
         // Почистим лист ботов
         Bots::getInstance()->clear();
-//        Ants::logger(Tools::$rows);
-//        Ants::logger(Tools::$cols);
 
-        // clear ant and food data
-        foreach ($this->myAnts as $ant) {
-            list($row, $col) = $ant;
-            $this->map[$row][$col] = LAND;
-        }
-        $this->myAnts = array();
+//        self::$water = array();
+        self::$food = array();
+        self::$myAnts = array();
+        self::$enemyAnts = array();
+//        self::$land = array();
+        self::$deadAnts = array();
+//        self::$enemyHome = array();
+//        self::$home = array();
 
-        foreach ($this->enemyAnts as $ant) {
-            list($row, $col) = $ant;
-            $this->map[$row][$col] = LAND;
-        }
-        $this->enemyAnts = array();
-
-        foreach ($this->deadAnts as $ant) {
-            list($row, $col) = $ant;
-            $this->map[$row][$col] = LAND;
-        }
-        $this->deadAnts = array();
-
-        foreach (Tools::$food as $ant) {
-            list($row, $col) = $ant;
-            $this->map[$row][$col] = LAND;
-        }
         Tools::$food = array();
 
         # update map and create new ant and food lists
@@ -135,10 +117,9 @@ class Steamer
 
                     $staticMapKey = Tools::createNum($row, $col);
 
-//                    self::logger($this->viewradius2 . "\n");
                     // Нашли муравья
                     if ($tokens[0] == 'a') {
-                        $owner = (int) $tokens[3];
+                        $owner = (int) $tokens[3]; // Если равно нулю (0) - то хозяин Я
                         $this->map[$row][$col] = $owner;
                         self::$staticMap[$staticMapKey] = LAND;
                         if ($owner === 0) {
@@ -201,59 +182,6 @@ class Steamer
                 }
             }
         }
-//        self::logger(self::$staticMap);
-//        self::logger();
-    }
-
-    public function passable($row, $col)
-    {
-        return $this->map[$row][$col] != WATER && $this->map[$row][$col] != MY_ANTS;
-    }
-
-    public function unoccupied($row, $col)
-    {
-        return in_array($this->map[$row][$col], array(LAND, DEAD, FOOD));
-    }
-
-    public function direction($row1, $col1, $row2, $col2)
-    {
-        $d = array();
-        $row1 = $row1 % Tools::$rows;
-        $row2 = $row2 % Tools::$rows;
-        $col1 = $col1 % Tools::$cols;
-        $col2 = $col2 % Tools::$cols;
-
-        if ($row1 < $row2) {
-            if ($row2 - $row1 >= Tools::$rows / 2) {
-                $d [] = 'n';
-            }
-            if ($row2 - $row1 <= Tools::$rows / 2) {
-                $d [] = 's';
-            }
-        } elseif ($row2 < $row1) {
-            if ($row1 - $row2 >= Tools::$rows / 2) {
-                $d [] = 's';
-            }
-            if ($row1 - $row2 <= Tools::$rows / 2) {
-                $d [] = 'n';
-            }
-        }
-        if ($col1 < $col2) {
-            if ($col2 - $col1 >= Tools::$cols / 2) {
-                $d [] = 'w';
-            }
-            if ($col2 - $col1 <= Tools::$cols / 2) {
-                $d [] = 'e';
-            }
-        } elseif ($col2 < $col1) {
-            if ($col1 - $col2 >= Tools::$cols / 2) {
-                $d [] = 'e';
-            }
-            if ($col1 - $col2 <= Tools::$cols / 2) {
-                $d [] = 'w';
-            }
-        }
-        return $d;
     }
 
     public static function run($bot)
@@ -269,9 +197,6 @@ class Steamer
                 $ants->setup($inputData);
                 $ants->finishTurn();
                 $inputData = array();
-//                Tools::logger(Tools::$cols);
-//                Tools::logger(Tools::$rows);
-//                die();
             } elseif ($current_line === 'go') {
                 Tools::logger();
                 Tools::$turn++;

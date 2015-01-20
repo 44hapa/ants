@@ -19,11 +19,11 @@ class BotsTest extends Test
     public function t1estSelectMove1()
     {
         // Размер карты
-        Tools::$cols = 20;
-        Tools::$rows = 20;
+        Steamer::$cols = 20;
+        Steamer::$rows = 20;
 
         // Заливкм карты
-        $maxCel = Tools::$rows * Tools::$cols;
+        $maxCel = Steamer::$rows * Steamer::$cols;
         Steamer::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
 
         // Еда вокруг ботов
@@ -87,11 +87,11 @@ class BotsTest extends Test
     public function testSelectMove2()
     {
         // Размер карты
-        Tools::$cols = 20;
-        Tools::$rows = 20;
+        Steamer::$cols = 20;
+        Steamer::$rows = 20;
 
         // Заливкм карты
-        $maxCel = Tools::$rows * Tools::$cols;
+        $maxCel = Steamer::$rows * Steamer::$cols;
         Steamer::$staticMap = array_pad(array(0), $maxCel -1, UNSEEN);
 
         //========================== СТОЛКНОВЕНИЕ ===============================
