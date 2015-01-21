@@ -47,7 +47,7 @@ class BotTest extends Test
         $botList->add($ant1);
         $botList->add($ant2);
 
-        Tools::$food [$mapFood1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
+        Steamer::$food [$mapFood1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
 
         // Определим зону приоритета
         $prioritiZone1 = $ant1->getPrioritiZone();
@@ -118,7 +118,7 @@ class BotTest extends Test
 
         dd($ant1->fillAndReturnPrioritiPoints());
 
-//        Tools::$food [$mapFoыod1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
+//        Steamer::$food [$mapFoыod1] = array('row' => $coordFood1['row'], 'col' => $coordFood1['col']);
 
     }
 }

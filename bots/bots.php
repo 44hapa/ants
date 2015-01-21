@@ -11,13 +11,6 @@ class Bots
 
     /**
      *
-     * @var type array
-     */
-    private $previousCoordinats = array();
-
-
-    /**
-     *
      * @var Bots
      */
     private static $instance;
@@ -60,12 +53,6 @@ class Bots
      */
     public function selectMove(Bot $ant, $direction)
     {
-
-        // Где-то тут необходимо исключить повторение маршрута
-
-
-        // Осмысленная часть
-
         // Следующие координаты при смещении на direction
         $nextCoordinat = Tools::nextStep($ant->coordinatColRow['col'], $ant->coordinatColRow['row'], $direction);
         $nextCol = $nextCoordinat['col'];
@@ -76,105 +63,26 @@ class Bots
         // Точка смещениея по ROW (вертикаль)
         $nextNumRow = Tools::createNum($nextRow, $ant->coordinatColRow['col']);
 
-        // Последняя координата - это на самом деле текущая, поэтому найдем предпоследнюю
-        $prevCoordinate = Bots::getInstance()->getPreviousCoordinatsByNum($ant->number);
-        end($prevCoordinate);
-        $lastKey = key($prevCoordinate);
-        if ($lastKey == 0) {
-            $lastCoordinat = null;
-        }else{
-            $lastCoordinat = $prevCoordinate[$lastKey - 1];
-        }
-
         Tools::logger("=========MOVE СТАРТ========\n");
         Tools::logger("БОТ " . implode(' : ' , $ant->coordinatColRow) . " хочет сожрать №{$ant->gol} = " . implode(' : ' , Tools::createCoordinate($ant->gol)));
-//        Tools::logger("Уже в следующих: " . print_r($this->nextCoordinates, true));
-//        Tools::logger($ant->coordinatColRow);
-//        Tools::logger($nextCoordinat);
         Tools::logger("Расчет  Для мураша " . implode(' : ' , $ant->coordinatColRow) . " nextCol $nextCol, nextRow $nextRow, nextNumCol $nextNumCol, nextNumRow $nextNumRow");
 
         if( $nextCoordinat['col'] != $ant->coordinatColRow['col'] && !$this->antOrWater($nextNumCol)){
-            if ($lastCoordinat != $nextNumCol) {
-//                Tools::logger($prevCoordinate);
-                Tools::logger("Осмыслено по COL && last != new $lastCoordinat != $nextNumCol");
-                $this->addNext($ant, $nextNumCol);
-                return $direction['col'];
-            }else{
-                Tools::logger('Задних ход: $lastCoordinat == $nextNumCol ::: '  . $lastCoordinat);
-            }
+            $this->addNext($ant, $nextNumCol);
+            return $direction['col'];
         }
 
         if( $nextCoordinat['row'] != $ant->coordinatColRow['row'] && !$this->antOrWater($nextNumRow)){
-            if ($lastCoordinat != $nextNumRow) {
-//                Tools::logger($prevCoordinate);
-                Tools::logger("Осмыслено по ROW && last != new $lastCoordinat != $nextNumRow");
-                Tools::logger("{2}$nextNumRow");
-                $this->addNext($ant, $nextNumRow);
-                return $direction['row'];
-            }  else {
-                Tools::logger('Задних ход: $lastCoordinat == $nextNumRow ::: '  . $lastCoordinat);
-            }
+            $this->addNext($ant, $nextNumRow);
+            return $direction['row'];
         }
 
         Tools::logger("Нет смысла-______________________");
 
         // Осмысленное движение закончено. Переходим к рандому
 
-        // Имеет смысл выбирать противоположное направление в ПРЕДпоследнюю очередь!
-        // В последнюю очередь - предыдущие координаты
-        $prevDirection = Tools::createDirection($ant, $lastCoordinat);
-        // Загоняем сюда плохое направление и предывущее. Надеемся получить список хороших направлений.
-        $randomDir = Tools::getSortRandomDirExcludeBadStep($direction, $prevDirection);
-
-/*
-        'n' => -1,
-        'e' => 1,
-        's' => 1,
-        'w' => -1,
-        '0' => 0,
-        // w - запад col
-        // e - восток col
-        // n - север row
-        // s - юг row
- */
-
-//        Tools::logger("Были такие направления: " . print_r($direction, true));
-//        Tools::logger("Стали рандомом направления: " . print_r($randomDir, true));
-
-        foreach($randomDir as $dir => $dirNum){
-            $dir == 'n' || $dir == 's' ? $dirArray = array('col' => 0, 'row' => $dir) : $dirArray = array('col' => $dir, 'row' => 0);
-
-//            Tools::logger("Пытаемся считать для такого направления : dir = $dir | dirNum = $dirNum");
-
-            $nextCoordinat = Tools::nextStep($ant->coordinatColRow['col'], $ant->coordinatColRow['row'], $dirArray);
-            $nextCol = $nextCoordinat['col'];
-            $nextRow = $nextCoordinat['row'];
-
-//            Tools::logger("Текущие координаты бота " . print_r($ant->coordinatColRow, true));
-//            Tools::logger("Желательные " . print_r($nextCoordinat, true));
-
-            $nextNumCol = Tools::createNum($ant->coordinatColRow['row'], $nextCol);
-            $nextNumRow = Tools::createNum($nextRow, $ant->coordinatColRow['col']);
-
-            if( $nextCol != $ant->coordinatColRow['col'] && !$this->antOrWater($nextNumCol)){
-                Tools::logger("Бессмысленно COL");
-                $this->addNext($ant, $nextNumCol);
-                return $dir;
-            }
-
-            if( $nextRow != $ant->coordinatColRow['row'] && !$this->antOrWater($nextNumRow)){
-                Tools::logger("Бессмысленно ROW");
-                $this->addNext($ant, $nextNumRow);
-                return $dir;
-            }
-        }
-
-        // TODO: механизм отката бота, который будет меня давить.
-        // Переработать механику Ж(
-
-
-        $this->addNext($ant, $ant->currentCoord);
-        return 'XUI';
+        // Никакого рандома!
+        return 'RANDOM';
     }
 
 
@@ -221,56 +129,6 @@ class Bots
         return false;
     }
 
-
-    public function getPreviousCoordinats()
-    {
-        return $this->previousCoordinats;
-    }
-
-    public function getPreviousCoordinatsByNum($botNumber)
-    {
-        if (!isset($this->previousCoordinats[$botNumber])) {
-            return array();
-        }
-        return $this->previousCoordinats[$botNumber];
-    }
-
-    public function addPreviousCoordinat(Bot $bot, $coordinat)
-    {
-        $this->previousCoordinats[$bot->number][] = $coordinat;
-    }
-
-    public function removeBotFromPreviousCoordinats($botNumber)
-    {
-        if (!isset($this->previousCoordinats[$botNumber])) {
-            Tools::logger("Не могу удалить бота $botNumber.");
-        }
-        unset($this->previousCoordinats[$botNumber]);
-    }
-
-    public function getBotByLastPreviousCoordinatOrNew($coordinat)
-    {
-
-//        Tools::logger('START ANT===');
-//        Tools::logger(Bots::getInstance()->getPreviousCoordinats());
-//        Tools::logger('FINNISHH ANT===');
-
-        if (empty($this->previousCoordinats)) {
-            return 0;
-        }
-
-        foreach ($this->previousCoordinats as $botNumber => $botPrevious) {
-            if ($coordinat == end($botPrevious)) {
-//                Tools::logger('Старый бот №' . $botNumber );
-                return $botNumber;
-            }else{
-//                Tools::logger('coordinat == end($botPrevious) : ' . $coordinat  . ' ! = ' . end($botPrevious) );
-            }
-        }
-        end($this->previousCoordinats);
-        return key($this->previousCoordinats) + 1;
-    }
-
     public function getNextList($asCoordinate = false)
     {
         if ($asCoordinate){
@@ -294,7 +152,6 @@ class Bots
     public function clear()
     {
         $this->nextCoordinates = array();
-//        $this->prevCoordinats = $this->list;
         foreach ($this->list as $key => $bot){
             unset($bot);
         }

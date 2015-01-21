@@ -2,8 +2,6 @@
 
 class Bot
 {
-    public $number;
-
     public $prevCoord;
     public $currentCoord;
     public $nextCoord;
@@ -86,7 +84,7 @@ class Bot
         $prioritiPointFood = array();
         $priorityZone = $this->getPrioritiZone();
 
-        $foods = Tools::$food;
+        $foods = Steamer::$food;
         foreach ($foods as $mapKey => $coordinates) {
             if (array_key_exists($mapKey, $priorityZone)) {
                 $prioritiPointFood[$mapKey] = Tools::mapDistance($mapKey, $this->currentCoord);

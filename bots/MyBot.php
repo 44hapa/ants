@@ -70,10 +70,6 @@ class MyBot
             $nextCoordinat = Tools::nextStep($ant->coordinatColRow['col'], $ant->coordinatColRow['row'], $dir);
             $nextNum = Tools::createNum($nextCoordinat['row'], $nextCoordinat['col']);
             
-            // Нужно сохранить выбранные координаты бота для истории
-            Bots::getInstance()->addPreviousCoordinat($ant, $nextNum);
-//            Tools::logger('bot go from ['.$ant->coordinatColRow['col']. ':' . $ant->coordinatColRow['row']. '] ' . $ant->currentCoord . '  to [' . $nextCoordinat['col'] . ':' . $nextCoordinat['row'] . ']' . $nextNum);
-
             Steamer::issueOrder($coordinats['row'], $coordinats['col'], $dir);
 //            break;
         }
@@ -106,7 +102,7 @@ class MyBot
                 $x = $Q > 0 ? $Q : $rows + $Q;
                 $y = $W > 0 ? $W : $cols + $W;
                 $priorityZone[$ant[0] . "." . $ant[1]][] = array($x,$y);
-                foreach(Tools::$food as $keyFood => $food){
+                foreach(Steamer::$food as $keyFood => $food){
                     if ($food == array($x, $y)){
                         // TODO:    нужно выбрать лучшего муравья!!!
 

@@ -41,7 +41,7 @@ class PrioritetsTest extends Test
         $botList->add($ant1);
         $botList->add($ant2);
 
-        Tools::$food [$mapFood1] = array($coordFood1[0], $coordFood1[1]);
+        Steamer::$food [$mapFood1] = array($coordFood1[0], $coordFood1[1]);
 
         // Определим приоритетные точки;
         $ant1->fillAndReturnPrioritiPoints();
